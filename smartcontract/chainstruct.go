@@ -26,7 +26,7 @@ type Data struct {
 	PermissionLevel PermissionLevel `json:"permissionlevel"`
 	MeteData        MeteData
 	PermissionList  []PermissionList
-	Signature       string `json:"signature"`
+	Signature       Signature
 	History         []Data
 }
 
@@ -38,10 +38,10 @@ type Behavior struct {
 }
 
 type LogInfo struct {
-	Client     string    `json:"client"` //publickey
 	TimeStamp  time.Time `json:"timestamp"`
+	PublicKey  string    `json:"publickey"`
 	Method     string    `json:"method"`
-	TargetFile string    `json:"targetfile"`
+	TargetFile string    `json:"targetfile"` // File Hash
 }
 
 type MeteData struct {
@@ -50,4 +50,9 @@ type MeteData struct {
 type PermissionList struct {
 	PublicKey  string     `json:"publickey"`
 	Permission Permission `json:"permission"`
+}
+
+type Signature struct {
+	R []byte `json:"r"`
+	S []byte `json:"s"`
 }
