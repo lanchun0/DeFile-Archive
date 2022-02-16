@@ -3,6 +3,7 @@ package entity
 import "time"
 
 type Data struct {
+	ID              string          `json:"id"`
 	HashDigest      string          `json:"hashdigest"`
 	Owner           string          `json:"owner"`
 	PermissionLevel PermissionLevel `json:"permissionlevel"`
@@ -19,8 +20,8 @@ type MeteData struct {
 }
 
 type PermissionList struct {
-	PublicKey  string     `json:"publickey"`
-	Permission Permission `json:"permission"`
+	PublicKey  string `json:"publickey"`
+	Permission byte   `json:"permission"`
 }
 
 type Signature struct {

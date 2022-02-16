@@ -8,9 +8,10 @@ type Permission byte
 type PermissionLevel byte
 
 const (
-	Administrator Permission = 0b00000001
-	Writer        Permission = 0b00000010
-	Reader        Permission = 0b00000100
+	Owner Permission = 0b10000000 >> iota
+	Administrator
+	Writer
+	Reader
 )
 const (
 	L_0 PermissionLevel = iota
@@ -31,9 +32,9 @@ type Data struct {
 }
 
 type Behavior struct {
-	PublicKey  string   `json:"publickey"`
-	PrivateKey string   `json:"privatekey"`
-	Asset      []string `json:"asset"`
+	PublicKey  string  `json:"publickey"`
+	PrivateKey string  `json:"privatekey"`
+	Assets     []Asset `json:"assets"`
 	Logs       []LogInfo
 }
 
@@ -45,14 +46,22 @@ type LogInfo struct {
 }
 
 type MeteData struct {
+	FileName  string    `json:"filename"`
+	Size      int       `json:"size"`
+	TimeStamp time.Time `json:"timestamp"`
 }
 
 type PermissionList struct {
-	PublicKey  string     `json:"publickey"`
-	Permission Permission `json:"permission"`
+	PublicKey  string `json:"publickey"`
+	Permission byte   `json:"permission"`
 }
 
 type Signature struct {
 	R []byte `json:"r"`
 	S []byte `json:"s"`
+}
+
+type Asset struct {
+	FileHash   string `json:"filehash"`
+	Permission byte   `json:"permission"`
 }

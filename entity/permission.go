@@ -4,9 +4,10 @@ type Permission byte
 type PermissionLevel byte
 
 const (
-	Administrator Permission = 0b00000001
-	Writer        Permission = 0b00000010
-	Reader        Permission = 0b00000100
+	Owner Permission = 0b10000000 >> iota
+	Administrator
+	Writer
+	Reader
 )
 const (
 	L_0 PermissionLevel = iota
