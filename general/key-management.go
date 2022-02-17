@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"dfa/entity"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"math/big"
@@ -83,4 +84,17 @@ func VerifySignature(plainText []byte, signature entity.Signature, pub []byte) (
 	r.UnmarshalText(signature.R)
 	s.UnmarshalText(signature.S)
 	return ecdsa.Verify(publicKey, hashed, &r, &s), nil
+}
+
+func FormatSignature(s entity.Signature) string {
+	sJson, _ := json.Marshal(s)
+	sStr, _ := BytesTostr(sJson)
+	return sStr
+}
+
+func ParseSignature(addr string) entity.Signature {
+	sStr, _ := StrToBytes(addr)
+	var s entity.Signature
+	json.Unmarshal(sStr, &s)
+	return s
 }

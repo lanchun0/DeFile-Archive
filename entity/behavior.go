@@ -19,5 +19,5 @@ type LogInfo struct {
 
 type Asset struct {
 	FileID     string `json:"fileid"`
-	Permission byte   `json:"permission"`
+	Permission uint   `json:"permission"`
 }

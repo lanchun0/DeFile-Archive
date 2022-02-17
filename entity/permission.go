@@ -1,7 +1,7 @@
 package entity
 
-type Permission byte
-type PermissionLevel byte
+type Permission uint8
+type PermissionLevel uint8
 
 const (
 	Owner Permission = 0b10000000 >> iota

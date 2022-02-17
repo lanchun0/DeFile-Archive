@@ -21,7 +21,7 @@ type MeteData struct {
 
 type PermissionList struct {
 	PublicKey  string `json:"publickey"`
-	Permission byte   `json:"permission"`
+	Permission uint   `json:"permission"`
 }
 
 type Signature struct {
