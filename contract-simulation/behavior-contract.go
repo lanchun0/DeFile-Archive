@@ -37,6 +37,9 @@ func (contract *behaviorchain) Register() (entity.Behavior, error) {
 	if !ok {
 		return entity.Behavior{}, fmt.Errorf("behaviorchain: register falied")
 	}
+	if ok {
+		fmt.Println("Success register!")
+	}
 	return b, nil
 
 }
@@ -55,7 +58,7 @@ func (contract *behaviorchain) Login(publickey string, s entity.Signature) (enti
 	}
 	valid, err := general.VerifySignature(priByte, s, pubByte)
 	if !valid || err != nil {
-		return entity.Behavior{}, fmt.Errorf("behavior chain: login: fake signature or %w", err)
+		return entity.Behavior{}, fmt.Errorf("behavior chain: login: faked signature or %w", err)
 	}
 	bh.PrivateKey = ""
 	return bh, nil
@@ -146,6 +149,11 @@ func insertBehavior(contract *behaviorchain, b entity.Behavior) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("behaviorchain: insert: exec fail %w", err)
 	}
+	// //
+	// tx.Commit()
+	// id, _ := res.LastInsertId()
+	// fmt.Println(id)
+	// //
 	return true, nil
 }
 
@@ -160,7 +168,10 @@ func selectBehavior(contract *behaviorchain, pub string) (entity.Behavior, bool)
 		return entity.Behavior{}, false
 	}
 
-	rows, _ := contract.DB.Query("SELECT * from loginfo_table WHERE behavior_publickey = ?", pub)
+	rows, err := contract.DB.Query("SELECT * from loginfo_table WHERE behavior_publickey = ?", pub)
+	if err != nil {
+		fmt.Printf("select behavior: %s", err)
+	}
 	for rows.Next() {
 		var ignore string
 		var l entity.LogInfo
@@ -173,7 +184,7 @@ func selectBehavior(contract *behaviorchain, pub string) (entity.Behavior, bool)
 		b.Logs = append(b.Logs, l)
 	}
 
-	rows, _ = contract.DB.Query("SELECT * from behavior_publickey WHERE id = ?", pub)
+	rows, _ = contract.DB.Query("SELECT * from asset_table WHERE behavior_publickey = ?", pub)
 	for rows.Next() {
 		var ignore string
 		var a entity.Asset
@@ -211,6 +222,7 @@ func insertLoginfo(contract *behaviorchain, pub string, log entity.LogInfo) (boo
 	if err != nil {
 		return false, fmt.Errorf("behavior chain: update loginfo: %w", err)
 	}
+	tx.Commit()
 	return true, nil
 
 }
@@ -229,6 +241,7 @@ func insertAsset(contract *behaviorchain, pub string, a entity.Asset) (bool, err
 	if err != nil {
 		return false, fmt.Errorf("behavior chain: insert asset: %w", err)
 	}
+	tx.Commit()
 	return true, nil
 }
 
@@ -245,6 +258,7 @@ func updateAsset(contract *behaviorchain, pub string, a entity.Asset) (bool, err
 	if err != nil {
 		return false, fmt.Errorf("behavior chain: update asset: %w", err)
 	}
+	tx.Commit()
 	return true, nil
 
 }

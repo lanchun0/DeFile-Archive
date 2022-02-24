@@ -3,14 +3,14 @@ package entity
 import "time"
 
 type Data struct {
-	ID              string          `json:"id"`
-	HashDigest      string          `json:"hashdigest"`
-	Owner           string          `json:"owner"`
-	PermissionLevel PermissionLevel `json:"permissionlevel"`
+	ID              string `json:"id"`
+	HashDigest      string `json:"hashdigest"`
+	Owner           string `json:"owner"`
+	PermissionLevel uint   `json:"permissionlevel"`
 	MeteData        MeteData
 	PermissionList  []PermissionList
 	Signature       Signature
-	History         []Data
+	History         []DataHistory
 }
 
 type MeteData struct {
@@ -27,4 +27,11 @@ type PermissionList struct {
 type Signature struct {
 	R []byte `json:"r"`
 	S []byte `json:"s"`
+}
+
+type DataHistory struct {
+	HashDigest string `json:"hashdigest"`
+	Signer     string `json:"signer"`
+	MeteData   MeteData
+	Signature  Signature
 }
