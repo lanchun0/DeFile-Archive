@@ -6,7 +6,7 @@ type Data struct {
 	ID              string `json:"id"`
 	HashDigest      string `json:"hashdigest"`
 	Owner           string `json:"owner"`
-	PermissionLevel uint   `json:"permissionlevel"`
+	PermissionLevel uint8  `json:"permissionlevel"`
 	MeteData        MeteData
 	PermissionList  []PermissionList
 	Signature       Signature

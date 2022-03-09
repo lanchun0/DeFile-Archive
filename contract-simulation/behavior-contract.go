@@ -11,11 +11,8 @@ func (contract *behaviorchain) Register() (entity.Behavior, error) {
 	if err != nil {
 		return entity.Behavior{}, err
 	}
-	priStr, err := general.BytesTostr(pri)
-	pubStr, err := general.BytesTostr(pub)
-	if err != nil {
-		return entity.Behavior{}, err
-	}
+	priStr := general.Bytes2String(pri)
+	pubStr := general.Bytes2String(pub)
 
 	b := entity.Behavior{
 		PublicKey:  pubStr,
@@ -51,11 +48,9 @@ func (contract *behaviorchain) Login(publickey string, s entity.Signature) (enti
 		return entity.Behavior{}, fmt.Errorf("behavior chain: login: user doesn't exist")
 	}
 
-	priByte, err := general.StrToBytes(bh.PrivateKey)
-	pubByte, err := general.StrToBytes(bh.PublicKey)
-	if err != nil {
-		return entity.Behavior{}, fmt.Errorf("error: %s", "missing keys")
-	}
+	priByte := general.String2Bytes(bh.PrivateKey)
+	pubByte := general.String2Bytes(bh.PublicKey)
+
 	valid, err := general.VerifySignature(priByte, s, pubByte)
 	if !valid || err != nil {
 		return entity.Behavior{}, fmt.Errorf("behavior chain: login: faked signature or %w", err)

@@ -42,10 +42,7 @@ func (service *behaviorService) RecordAccess(l entity.LogInfo) (entity.Behavior,
 }
 
 func (service *behaviorService) Login(pristr, pubstr string) (entity.Behavior, error) {
-	priBytes, err := general.StrToBytes(pristr)
-	if err != nil {
-		return entity.Behavior{}, err
-	}
+	priBytes := general.String2Bytes(pristr)
 	signature, err := general.MakeSignature(priBytes, priBytes)
 	if err != nil {
 		// log.Fatal(err)
