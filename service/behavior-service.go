@@ -3,14 +3,13 @@ package service
 import (
 	contract "dfa/contract-simulation"
 	"dfa/entity"
-	"dfa/general"
 	"time"
 )
 
 type BehaviorService interface {
 	Register() (entity.Behavior, error)
 	RecordAccess(l entity.LogInfo) (entity.Behavior, error)
-	Login(pristr, pubstr string) (entity.Behavior, error)
+	// Login(pristr, pubstr string) (entity.Behavior, error)
 }
 
 type behaviorService struct {
@@ -41,18 +40,18 @@ func (service *behaviorService) RecordAccess(l entity.LogInfo) (entity.Behavior,
 	return service.behavior, nil
 }
 
-func (service *behaviorService) Login(pristr, pubstr string) (entity.Behavior, error) {
-	priBytes := general.String2Bytes(pristr)
-	signature, err := general.MakeSignature(priBytes, priBytes)
-	if err != nil {
-		// log.Fatal(err)
-		return entity.Behavior{}, err
-	}
-	b, err := service.contract.Login(pubstr, signature)
-	if err != nil {
-		// log.Fatal(err)
-		return entity.Behavior{}, err
-	}
-	service.behavior = b
-	return b, nil
-}
+// func (service *behaviorService) Login(pristr, pubstr string) (entity.Behavior, error) {
+// 	priBytes := general.String2Bytes(pristr)
+// 	signature, err := general.MakeSignature(priBytes, priBytes)
+// 	if err != nil {
+// 		// log.Fatal(err)
+// 		return entity.Behavior{}, err
+// 	}
+// 	b, err := service.contract.Login(pubstr, signature)
+// 	if err != nil {
+// 		// log.Fatal(err)
+// 		return entity.Behavior{}, err
+// 	}
+// 	service.behavior = b
+// 	return b, nil
+// }
