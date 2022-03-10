@@ -8,42 +8,51 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func GenerateECDSAKey() (private, public []byte, addr string) {
+func GenerateECSDAKey() (pub, priv, pubAddr string) {
 	privateKey, _ := crypto.GenerateKey()
 	privateKeyBytes := crypto.FromECDSA(privateKey)
 	publicKey := privateKey.Public()
 	publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
 	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-	return publicKeyBytes, privateKeyBytes, address
+	pub, priv = hexutil.Encode(publicKeyBytes), hexutil.Encode(privateKeyBytes)
+	return pub, priv, address
 }
 
-func MakeSignature(priv, plaintext []byte) (signature []byte, err error) {
-	privStr := hexutil.Encode(priv)
-	privateKey, err := crypto.HexToECDSA(privStr[2:])
+func MakeSignature(priv string, plaintext []byte) (signature string, err error) {
+	privateKey, err := crypto.HexToECDSA(priv[2:])
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 	hash := crypto.Keccak256Hash(plaintext)
-	signature, err = crypto.Sign(hash.Bytes(), privateKey)
+	sigBytes, err := crypto.Sign(hash.Bytes(), privateKey)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
+	signature = hexutil.Encode(sigBytes)
 	return signature, nil
 }
 
-func VerifySignature(pub, plaintext, signature []byte) bool {
-	hash := crypto.Keccak256Hash(plaintext)
-	sigPublicKey, err := crypto.Ecrecover(hash.Bytes(), signature)
+func VerifySignature(pub, signature string, plaintext []byte) bool {
+	sigBytes, err := hexutil.Decode(signature)
 	if err != nil {
 		return false
 	}
-	matches := bytes.Equal(sigPublicKey, pub)
+	pubBytes, err := hexutil.Decode(pub)
+	if err != nil {
+		return false
+	}
+	hash := crypto.Keccak256Hash(plaintext)
+	sigPublicKey, err := crypto.Ecrecover(hash.Bytes(), sigBytes)
+	if err != nil {
+		return false
+	}
+	matches := bytes.Equal(sigPublicKey, pubBytes)
 	if !matches {
 		return false
 	}
-	signatureNoRecoverID := signature[:len(signature)-1] // remove recovery id
-	return crypto.VerifySignature(pub, hash.Bytes(), signatureNoRecoverID)
+	signatureNoRecoverID := sigBytes[:len(sigBytes)-1] // remove recovery id
+	return crypto.VerifySignature(pubBytes, hash.Bytes(), signatureNoRecoverID)
 }
 
 // func FormatSignature(s entity.Signature) string {
