@@ -51,7 +51,7 @@ type SmartContract interface {
 	changeAuth()
 }
 
-func GetConract() SmartContract {
+func NewConract() SmartContract {
 	return &smartcontract{
 		serverIndex: 0,
 		servers:     servers[:],
