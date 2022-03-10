@@ -27,6 +27,7 @@ contract Behavior {
         userAmount++;
         keys[userAmount] = _pub;
         User storage u = users[_pub];
+        u.publicKey = _pub;
         u.privateKey = _priv;
         u.exist = true;
         return userAmount;

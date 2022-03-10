@@ -1007,4 +1007,3 @@ func (_Filesharing *FilesharingFilterer) ParseWriteFile(log types.Log) (*Filesha
 	event.Raw = log
 	return event, nil
 }
-
