@@ -10,7 +10,7 @@ const (
 	Reader
 )
 const (
-	L_0 PermissionLevel = iota
+	L_0 PermissionLevel = 0b10000000 >> iota
 	L_1
 	L_2
 	L_3

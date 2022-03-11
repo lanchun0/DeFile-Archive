@@ -32,17 +32,5 @@ func main() {
 	server.POST("/posts", func(ctx *gin.Context) {
 		ctx.JSON(200, videoController.Save(ctx))
 	})
-
-	// server.GET("/behavior", func(ctx *gin.Context) {
-	// 	data, _ := blockchainController.Register()
-	// 	ctx.JSON(200, data)
-	// })
-
-	// server.POST("/behavior", func(ctx *gin.Context) {
-	// 	data, err := blockchainController.Login(ctx)
-	// 	ctx.JSON(200, data)
-	// 	fmt.Println(err)
-	// })
-
 	server.Run(":7051")
 }

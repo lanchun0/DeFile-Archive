@@ -6,11 +6,11 @@ type Data struct {
 	ID              string `json:"id"`
 	HashDigest      string `json:"hashdigest"`
 	Owner           string `json:"owner"`
-	PermissionLevel uint   `json:"permissionlevel"`
+	PermissionLevel uint8  `json:"permissionlevel"`
+	Signature       string `json:"signature"`
 	MeteData        MeteData
 	PermissionList  []PermissionList
-	Signature       Signature
-	History         []DataHistory
+	// History         []DataHistory
 }
 
 type MeteData struct {
@@ -21,17 +21,12 @@ type MeteData struct {
 
 type PermissionList struct {
 	PublicKey  string `json:"publickey"`
-	Permission uint   `json:"permission"`
+	Permission uint8  `json:"permission"`
 }
 
-type Signature struct {
-	R []byte `json:"r"`
-	S []byte `json:"s"`
-}
-
-type DataHistory struct {
-	HashDigest string `json:"hashdigest"`
-	Signer     string `json:"signer"`
-	MeteData   MeteData
-	Signature  Signature
-}
+// type DataHistory struct {
+// 	HashDigest string `json:"hashdigest"`
+// 	Signer     string `json:"signer"`
+// 	MeteData   MeteData
+// 	Signature  Signature
+// }
