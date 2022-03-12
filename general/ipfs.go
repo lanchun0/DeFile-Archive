@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 //Part 1 - Getting an IPFS node running: To get get a node running as an ephemeral node (that will cease to exist when the run ends)
@@ -64,6 +65,21 @@ func createTempRepo(ctx context.Context) (string, error) {
 
 //Construct the IPFS node instance itself
 
+func spawnEphemeral(ctx context.Context) (icore.CoreAPI, error) {
+	if err := setupPlugins(""); err != nil {
+		return nil, err
+	}
+
+	// Create a Temporary Repo
+	repoPath, err := createTempRepo(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create temp repo: %s", err)
+	}
+
+	// Spawning an ephemeral IPFS node
+	return createNode(ctx, repoPath)
+}
+
 func createNode(ctx context.Context, repoPath string) (icore.CoreAPI, error) {
 	//Creates an IPFS node and returns its coreAPI
 	// Open the repo
@@ -113,6 +129,20 @@ func getUnixfsFile(path string) (files.File, error) {
 	return f, nil
 }
 
+func getUnixfsNode(path string) (files.Node, error) {
+	st, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := files.NewSerialFile(path, false, st)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, nil
+}
+
 //Add a file to IPFS -- main()
 
 //Part 3 - Getting the file and directory you added back
@@ -120,3 +150,52 @@ func getUnixfsFile(path string) (files.File, error) {
 //Get the file back -- main()
 
 //Write the file to local filesystem -- main()
+
+func main() {
+	fmt.Println("-- Getting an IPFS node running -- ")
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	fmt.Println("Spawning node on a temporary repo")
+	ipfs, err := spawnEphemeral(ctx)
+	if err != nil {
+		panic(fmt.Errorf("failed to spawn ephemeral node: %s", err))
+	}
+
+	fmt.Println("IPFS node is running")
+
+	fmt.Println("\n-- Adding and getting back files & directories --")
+
+	inputBasePath := "./ipfs/"
+	inputPathFile := inputBasePath + "test.txt"
+	//inputPathDirectory := inputBasePath + "test-dir"
+
+	someFile, err := getUnixfsNode(inputPathFile)
+	if err != nil {
+		panic(fmt.Errorf("Could not get File: %s", err))
+	}
+
+	cidFile, err := ipfs.Unixfs().Add(ctx, someFile)
+	if err != nil {
+		panic(fmt.Errorf("Could not add File: %s", err))
+	}
+
+	fmt.Printf("Added file to IPFS with CID %s\n", cidFile.String())
+
+	outputBasePath := "./ipfs/download/"
+	outputPathFile := outputBasePath + strings.Split(cidFile.String(), "/")[2]
+	//outputPathDirectory := outputBasePath + strings.Split(cidDirectory.String(), "/")[2]
+
+	rootNodeFile, err := ipfs.Unixfs().Get(ctx, cidFile)
+	if err != nil {
+		panic(fmt.Errorf("Could not get file with CID: %s", err))
+	}
+
+	err = files.WriteTo(rootNodeFile, outputPathFile)
+	if err != nil {
+		panic(fmt.Errorf("Could not write out the fetched CID: %s", err))
+	}
+
+	fmt.Printf("Got file back from IPFS (IPFS path: %s) and wrote it to %s\n", cidFile.String(), outputPathFile)
+}
