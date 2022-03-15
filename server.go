@@ -3,15 +3,16 @@ package main
 import (
 	"dfa/controller"
 	"dfa/middlewares"
+	"dfa/routers"
 	"dfa/service"
 
 	"github.com/gin-gonic/gin"
-	gindump "github.com/tpkeeper/gin-dump"
 )
 
 var (
-	videoService    service.VideoService       = service.NewVideoService()
-	videoController controller.VideoController = controller.NewVideoController(videoService)
+	contractService    service.ContractService       = service.NewContractService()
+	jwtService         service.JWTService            = service.NewJWTService()
+	contractController controller.ContractController = controller.NewContractController(contractService, jwtService)
 )
 
 // var (
@@ -22,15 +23,8 @@ var (
 
 func main() {
 	server := gin.New()
-	server.Use(gin.Recovery(), middlewares.Logger(),
-		middlewares.BasicAuth(), gindump.Dump())
+	server.Use(gin.Recovery(), middlewares.Logger())
+	routers.SetRouter(server, contractController)
 
-	server.GET("/posts", func(ctx *gin.Context) {
-		ctx.JSON(200, videoController.FindAll())
-	})
-
-	server.POST("/posts", func(ctx *gin.Context) {
-		ctx.JSON(200, videoController.Save(ctx))
-	})
 	server.Run(":7051")
 }

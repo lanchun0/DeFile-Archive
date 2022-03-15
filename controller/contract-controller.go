@@ -10,12 +10,13 @@ type ContractController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 
-	// FindAllData() ([]entity.Data, error)
-	// SaveData(ctx *gin.Context) (entity.Data, error)
+	UploadFile(ctx *gin.Context)
+	DownloadFile(ctx *gin.Context)
+	WriteFile(ctx *gin.Context)
+	ShareFile(ctx *gin.Context)
 
-	// Register() (entity.Behavior, error)
-	// RecordAccess(ctx *gin.Context) (entity.Behavior, error)
-	// Login(ctx *gin.Context) (entity.Behavior, error)
+	QueryFile(ctx *gin.Context)
+	QueryAllFiles(ctx *gin.Context)
 }
 
 type contractController struct {
