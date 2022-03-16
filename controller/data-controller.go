@@ -100,13 +100,73 @@ func (c *contractController) WriteFile(ctx *gin.Context) {
 }
 
 func (c *contractController) ShareFile(ctx *gin.Context) {
-	//c.contractService.ShareFile()
+	var request dto.ShareRequest
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    err,
+		})
+		return
+	}
+	pub, _, err := service.ParseToken(request.Token)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    "token expired",
+		})
+		return
+	}
+	tx, err := c.contractService.ShareFile(pub, request.To, request.ID, request.Permission)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    err,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":     http.StatusOK,
+		"trasaction": tx,
+	})
 }
 
 func (c *contractController) QueryFile(ctx *gin.Context) {
-	//c.contractService.QueryFile()
+	var request dto.OneFileRequest
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": "failed to request file",
+		})
+		return
+	}
+
+	data, err := c.contractService.QueryFile(request.ID)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": err,
+		})
+		return
+	}
+	view := dto.Data2View(data)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data":   view,
+	})
+
 }
 
 func (c *contractController) QueryAllFiles(ctx *gin.Context) {
-	//c.contractService.QueryAllFiles()
+	data := c.contractService.QueryAllFiles()
+	views := []dto.ViewData{}
+	for _, d := range data {
+		view := dto.Data2View(d)
+		views = append(views, view)
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":  "inquirying all files",
+		"data": views,
+	})
 }
