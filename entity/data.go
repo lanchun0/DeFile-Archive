@@ -15,7 +15,7 @@ type Data struct {
 
 type MeteData struct {
 	FileName  string    `json:"filename"`
-	Size      int       `json:"size"`
+	Size      int64     `json:"size"`
 	TimeStamp time.Time `json:"timestamp"`
 }
 

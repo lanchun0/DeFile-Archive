@@ -138,7 +138,7 @@ func offFile2Data(f *filesharing.OffFile) entity.Data {
 	}
 	size := f.MeteData.Size.Int64()
 	data.MeteData.TimeStamp, _ = general.Str2Timestamp(f.MeteData.Timestamp)
-	data.MeteData.Size = int(size)
+	data.MeteData.Size = size
 	for _, pl := range f.PermissionList {
 		pl_new := entity.PermissionList{
 			PublicKey:  pl.PublicKey,
