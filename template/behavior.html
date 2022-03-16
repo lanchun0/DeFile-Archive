@@ -4,32 +4,48 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./css/behaviorstyle.css">
     <title>DeFile Archive</title>
 </head>
+
+
 <body>
-    <div id="archive">
-        <form action = "">          
+    <div class="hehavior">
+        <form action = "" method="get">          
             
-            <div class="box1">
+            <h1>DeFile Archive</h1>
 
-                <h1>DeFile Archive</h1>
-                <a href="homepage.html">To my homepage</a>
-                
-                {{$id:= .publickey}}
-                <div class="boxid">
-                    <!-- 假设gin中.get名称为publickey -->
-                    
-                    <p>My identity: </p>
-                    <p>{{.id}}</p>
-                </div>
-                
-
-
-
-                
-
+            <div style="float: right">
+               <a href="login.html">
+                   <input type="button" value="Logout">
+               </a>
             </div>
+            
+            <a href="homepage.html">To my homepage</a>
+            
+            <!-- Pass in username "Name"-->
+            <p style="margin-top: 20px;">My identity:  <u>{{.Name}}</u> </p>
+            
+            
+            <h4 style="margin-top: 20px;">My files</h4>
+            
+            <!-- TO BE MODIFIED -->
+            <div id="filebox">
+                <p>TO BE MODIFIED</p>
+                <p>some file names here</p>
+            </div>
+
+
+            <div id="tracefilebox">
+                <a href="login.html">Trace History</a>
+            </div>
+                
+
+
+
+                
+            
+           
         </form>
     </div>
     
