@@ -15,7 +15,7 @@ type ContractService interface {
 	QueryFile(id string) (entity.Data, error)
 	DownloadFile(pub, id, signature string) (entity.Data, error)
 	UploadFile(data entity.Data) (string, error)
-	ShareFile(from, to, id, signature, plStr string) (string, error)
+	ShareFile(from, to, id, plStr string) (string, error)
 	WriteFile(pub string, data entity.Data) (string, error)
 }
 
@@ -75,7 +75,7 @@ func (service *contractService) UploadFile(data entity.Data) (string, error) {
 	return service.contract.CreateFile(data)
 }
 
-func (service *contractService) ShareFile(from, to, id, signature, plStr string) (string, error) {
+func (service *contractService) ShareFile(from, to, id, plStr string) (string, error) {
 	var pL entity.Permission
 	if strings.EqualFold("owner", plStr) {
 		pL = entity.Owner
@@ -89,7 +89,7 @@ func (service *contractService) ShareFile(from, to, id, signature, plStr string)
 		return "", fmt.Errorf("Invalid permission input: %s", plStr)
 	}
 
-	return service.contract.ShareFile(from, to, id, signature, pL)
+	return service.contract.ShareFile(from, to, id, pL)
 }
 
 // modify both off-chain and on-chain data

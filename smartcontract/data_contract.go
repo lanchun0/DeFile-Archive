@@ -76,13 +76,13 @@ func (contract *smartcontract) WriteFile(pub string, data entity.Data) (string, 
 	return tx, nil
 }
 
-// To share a file, sign the to+id
-func (contract *smartcontract) ShareFile(from, to, id, signature string, pL entity.Permission) (string, error) {
-	plaintext := general.String2Bytes(to + id)
-	valid := general.VerifySignature(from, signature, plaintext)
-	if !valid {
-		return "", fmt.Errorf("invalid sharing")
-	}
+// To share a file
+func (contract *smartcontract) ShareFile(from, to, id string, pL entity.Permission) (string, error) {
+	// plaintext := general.String2Bytes(to + id)
+	// valid := general.VerifySignature(from, signature, plaintext)
+	// if !valid {
+	// 	return "", fmt.Errorf("invalid sharing")
+	// }
 	contract.changeAuth()
 	tx, err := contract.dataContract.AddPermission(contract.auth, from, to, id, uint8(pL))
 	if err != nil {

@@ -43,7 +43,7 @@ type SmartContract interface {
 	CreateFile(data entity.Data) (string, error)
 	ReadFile(pub, id, signature string) (entity.Data, error)
 	WriteFile(pub string, data entity.Data) (string, error)
-	ShareFile(from, to, id, signature string, pL entity.Permission) (string, error)
+	ShareFile(from, to, id string, pL entity.Permission) (string, error)
 
 	QueryFile(id string) (entity.Data, error)
 	QueryAllFiles() ([]entity.Data, error)

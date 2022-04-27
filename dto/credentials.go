@@ -18,6 +18,17 @@ type FileCreateRequest struct {
 	Permission string `form:"permission"`
 }
 
+type OneFileRequest struct {
+	ID string `json:"id"`
+}
+
+type ShareRequest struct {
+	Token      string `form:"token"`
+	ID         string `json:"id"`
+	To         string `json:"to"`
+	Permission string `json:"permission"`
+}
+
 type ViewData struct {
 	ID              string `json:"id"`
 	HashDigest      string `json:"hashdigest"`
