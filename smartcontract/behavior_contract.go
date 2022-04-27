@@ -3,50 +3,47 @@ package smartcontract
 import (
 	"dfa/entity"
 	"dfa/general"
-	"dfa/smartcontract/behavior"
+	"dfa/smartcontract/token"
 	"fmt"
+
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
-func (contract *smartcontract) Register() (entity.Behavior, string, error) {
-	contract.changeAuth()
+func (contract *smartcontract) Register() (entity.User, string, error) {
 	pub, priv, addr := general.GenerateECSDAKey()
 	fmt.Println("Generated new user, address: ", addr)
-	tx, err := contract.behaviorContract.CreateUser(contract.auth, pub, priv)
-	if err != nil {
-		return entity.Behavior{}, "", err
+	fmt.Println("Public key: ", pub)
+	b := entity.User{
+		Address: addr,
+		Balance: 0,
 	}
-	fmt.Println("Transaction: ", tx.Hash().Hex())
-
-	user, err := contract.behaviorContract.GetUser(nil, pub)
-	if err != nil {
-		return entity.Behavior{}, "", err
-	}
-	b := user2Behavior(&user)
-	return b, tx.Hash().Hex(), nil
+	return b, priv, nil
 }
 
 // sign the public key to login
-func (contract *smartcontract) Login(pub, signature string) (entity.Behavior, error) {
-	pubBytes := general.String2Bytes(pub)
-	if !general.VerifySignature(pub, signature, pubBytes) {
-		return entity.Behavior{}, fmt.Errorf("invalid signature")
-	}
-	user, err := contract.behaviorContract.GetUser(nil, pub)
+func (contract *smartcontract) Login(priv string) (entity.User, error) {
+	_, addr, err := contract.parseIdentity(priv)
 	if err != nil {
-		return entity.Behavior{}, fmt.Errorf("failed to query on behavior chain: %v", err)
+		return entity.User{}, fmt.Errorf("failed to login: %v", err)
 	}
-	b := user2Behavior(&user)
-	return b, nil
+	opts := &bind.CallOpts{From: addr}
+	user, err := contract.userContract.QueryUser(opts)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("failed to query on token blockchain: %v", err)
+	}
+	u := token2User(&user)
+	return u, nil
 }
 
-func user2Behavior(user *behavior.User) entity.Behavior {
-	b := entity.Behavior{
-		PrivateKey: user.PrivateKey,
-		PublicKey:  user.PublicKey,
+func token2User(user *token.ForForTokenUser) entity.User {
+	user.Addr.Hex()
+	b := entity.User{
+		Address: user.Addr.Hex(),
+		Balance: user.Balance.Uint64(),
 	}
 	for _, asset := range user.Assets {
 		a := entity.Asset{
-			FileID:     asset.Fileid,
+			FileID:     asset.FileID,
 			Permission: asset.Permission,
 		}
 		b.Assets = append(b.Assets, a)
