@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func GenerateECSDAKey() (pub, priv, pubAddr string) {
+func GenerateECSDAKey() (pub, priv, addr string) {
 	privateKey, _ := crypto.GenerateKey()
 	privateKeyBytes := crypto.FromECDSA(privateKey)
 	publicKey := privateKey.Public()

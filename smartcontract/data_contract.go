@@ -5,89 +5,80 @@ import (
 	"dfa/general"
 	"dfa/smartcontract/filesharing"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"fmt"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
-func (contract *smartcontract) CreateFile(data entity.Data) (string, error) {
-	hashBytes := general.String2Bytes(data.HashDigest)
-	ok := general.VerifySignature(data.Owner, data.Signature, hashBytes)
-	if !ok {
-		return "", fmt.Errorf("invalid signature")
+func (contract *smartcontract) CreateFile(priv string, data entity.Data) (string, error) {
+	if len(data.ID) == 0 {
+		return "", fmt.Errorf("file id cannot be nil")
 	}
-	contract.changeAuth()
-	tx1, err := contract.dataContract.CreateFile(contract.auth, data.ID, data.HashDigest, data.Owner, data.PermissionLevel)
+	auth, _, err := contract.parseIdentity(priv)
 	if err != nil {
-		return "", fmt.Errorf("failed to record the file on chain: %v", err)
+		return "", fmt.Errorf("failed to create file: %v", err)
 	}
-	contract.changeAuth()
-	tx2, err := contract.dataContract.WriteFile(contract.auth, data.Owner, data.ID, data.HashDigest, data.Signature)
+	price := new(big.Int).SetUint64(data.Price)
+	tx, err := contract.dataContract.CreateFile(auth, data.ID, data.PermissionLevel, data.Tradable, price)
 	if err != nil {
-		return "", fmt.Errorf("failed to record the file on chain: %v", err)
+		err = fmt.Errorf("failed tx: %v", err)
+	} else {
+		fmt.Println("transaction: ", tx.Hash().Hex())
 	}
-	contract.changeAuth()
-	timestamp, size := general.Timestamp2Str(data.MeteData.TimeStamp), big.NewInt(int64(data.MeteData.Size))
-	tx3, err := contract.dataContract.WriteMeta(contract.auth, data.Owner, data.ID, data.MeteData.FileName, size, timestamp)
-	if err != nil {
-		return "", fmt.Errorf("failed to record the file on chain: %v", err)
-	}
-	tx := "transaction 1: " + tx1.Hash().Hex() + "\ntrasaction 2: " + tx2.Hash().Hex() + "\ntrasaction 3: " + tx3.Hash().Hex()
-	return tx, nil
+	return tx.Hash().Hex(), err
 }
 
 // To read a file, sign with the id of that file
-func (contract *smartcontract) ReadFile(pub, id, signature string) (entity.Data, error) {
-	if !general.VerifySignature(pub, signature, general.String2Bytes(id)) {
-		return entity.Data{}, fmt.Errorf("invalid reading identity")
-	}
-	can, err := contract.dataContract.CanRead(nil, pub, id)
-	if !can || err != nil {
-		return entity.Data{}, fmt.Errorf("no authority to read the file")
-	}
-	f, err := contract.dataContract.QueryFile(nil, pub)
+func (contract *smartcontract) ReadFile(priv, id string) (entity.Data, error) {
+	_, addr, err := contract.parseIdentity(priv)
 	if err != nil {
-		return entity.Data{}, fmt.Errorf("cannot read the file")
+		return entity.Data{}, fmt.Errorf("failed to read the file: %v", err)
+	}
+	opts := &bind.CallOpts{From: addr}
+	f, err := contract.dataContract.ReadFile(opts, id)
+	if err != nil {
+		return entity.Data{}, fmt.Errorf("failed to read file: %v", err)
 	}
 	data := offFile2Data(&f)
 	return data, nil
 }
 
 // To write a file, sign the hash digest
-func (contract *smartcontract) WriteFile(pub string, data entity.Data) (string, error) {
-	if !general.VerifySignature(pub, data.Signature, general.String2Bytes(data.HashDigest)) {
-		return "", fmt.Errorf("invalid reading identity")
-	}
-	can, err := contract.dataContract.CanWrite(nil, pub, data.ID)
-	if !can || err != nil {
-		return "", fmt.Errorf("no authority to write the file")
-	}
-	contract.changeAuth()
-	tx1, err := contract.dataContract.WriteFile(nil, pub, data.ID, data.HashDigest, data.Signature)
+func (contract *smartcontract) WriteFile(priv string, data entity.Data) (string, error) {
+	auth, _, err := contract.parseIdentity(priv)
 	if err != nil {
-		return "", fmt.Errorf("failed to write the file")
+		return "", fmt.Errorf("failed to write the file: %v", err)
 	}
-	contract.changeAuth()
-	size, timestamp := big.NewInt(int64(data.MeteData.Size)), general.Timestamp2Str(data.MeteData.TimeStamp)
-	tx2, err := contract.dataContract.WriteMeta(nil, pub, data.ID, data.MeteData.FileName, size, timestamp)
+	id, name, digest := data.ID, data.MeteData.FileName, data.MeteData.HashDigest
+	time, size := general.Timestamp2Str(data.MeteData.TimeStamp), new(big.Int).SetUint64(data.MeteData.Size)
+	tx, err := contract.dataContract.WriteFile(auth, id, digest, name, size, time)
 	if err != nil {
-		return "", fmt.Errorf("failed to write the mete data")
+		return "", fmt.Errorf("failed to write the file: %v", err)
 	}
-	tx := "transaction 1:" + tx1.Hash().Hex() + "transaction 2:" + tx2.Hash().Hex()
-	return tx, nil
+	fmt.Println("tx: ", tx.Hash().Hex())
+	return tx.Hash().Hex(), nil
 }
 
 // To share a file
-func (contract *smartcontract) ShareFile(from, to, id string, pL entity.Permission) (string, error) {
+func (contract *smartcontract) ShareFile(priv, to, id string, pL entity.Permission) (string, error) {
 	// plaintext := general.String2Bytes(to + id)
 	// valid := general.VerifySignature(from, signature, plaintext)
 	// if !valid {
 	// 	return "", fmt.Errorf("invalid sharing")
 	// }
-	contract.changeAuth()
-	tx, err := contract.dataContract.AddPermission(contract.auth, from, to, id, uint8(pL))
+	auth, _, err := contract.parseIdentity(priv)
 	if err != nil {
-		return "", fmt.Errorf("cannot share: %v", err)
+		return "", fmt.Errorf("failed to share the file: %v", err)
 	}
+	toAddr := common.HexToAddress(to)
+	tx, err := contract.dataContract.Authorize(auth, toAddr, id, uint8(pL))
+	if err != nil {
+		return "", fmt.Errorf("failed to share the file: %v", err)
+	}
+
 	return tx.Hash().Hex(), nil
 }
 
@@ -95,9 +86,6 @@ func (contract *smartcontract) QueryFile(id string) (entity.Data, error) {
 	f, err := contract.dataContract.QueryFile(nil, id)
 	if err != nil {
 		return entity.Data{}, fmt.Errorf("failed to query: %v", err)
-	}
-	if f.PermissionLevel == uint8(entity.L_0) {
-		return entity.Data{}, fmt.Errorf("failed to query: file is private")
 	}
 	data := offFile2Data(&f)
 	return data, nil
@@ -108,10 +96,12 @@ func (contract *smartcontract) QueryAllFiles() ([]entity.Data, error) {
 	if err != nil {
 		return []entity.Data{}, fmt.Errorf("failed to query: %v", err)
 	}
+	amount := total.Uint64()
 	var i uint64
 	res, i := []entity.Data{}, 0
-	for i < total {
-		f, err := contract.dataContract.QueryFileByIndex(nil, i)
+	for i < amount {
+		index := big.NewInt(int64(i))
+		f, err := contract.dataContract.QueryFileByIndex(nil, index)
 		if err != nil {
 			return res, err
 		}
@@ -124,24 +114,25 @@ func (contract *smartcontract) QueryAllFiles() ([]entity.Data, error) {
 	return res, nil
 }
 
-func offFile2Data(f *filesharing.OffFile) entity.Data {
+func offFile2Data(f *filesharing.QueryFile) entity.Data {
 	data := entity.Data{
 		ID:              f.FileID,
-		HashDigest:      f.HashDigest,
-		Owner:           f.Owner,
+		Owner:           f.Owner.Hex(),
 		PermissionLevel: f.PermissionLevel,
-		Signature:       f.Signature,
+		Tradable:        f.Tradable,
+		Price:           f.Price.Uint64(),
 		MeteData: entity.MeteData{
-			FileName: f.MeteData.FileName,
+			FileName:   f.MeteData.FileName,
+			HashDigest: f.MeteData.HashDigest,
+			Signer:     f.MeteData.Signer.Hex(),
+			Size:       f.MeteData.Size.Uint64(),
 		},
 		PermissionList: []entity.PermissionList{},
 	}
-	size := f.MeteData.Size.Int64()
 	data.MeteData.TimeStamp, _ = general.Str2Timestamp(f.MeteData.Timestamp)
-	data.MeteData.Size = size
 	for _, pl := range f.PermissionList {
 		pl_new := entity.PermissionList{
-			PublicKey:  pl.PublicKey,
+			Address:    pl.User.Hex(),
 			Permission: pl.Permission,
 		}
 		data.PermissionList = append(data.PermissionList, pl_new)

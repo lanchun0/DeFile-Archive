@@ -4,9 +4,10 @@ import "time"
 
 type Data struct {
 	ID              string `json:"id"`
-	HashDigest      string `json:"hashdigest"`
 	Owner           string `json:"owner"`
 	PermissionLevel uint8  `json:"permissionlevel"`
+	Tradable        bool   `json:"tradable"`
+	Price           uint64 `json:"price"`
 	Signature       string `json:"signature"`
 	MeteData        MeteData
 	PermissionList  []PermissionList
@@ -14,13 +15,15 @@ type Data struct {
 }
 
 type MeteData struct {
-	FileName  string    `json:"filename"`
-	Size      int64     `json:"size"`
-	TimeStamp time.Time `json:"timestamp"`
+	FileName   string    `json:"filename"`
+	HashDigest string    `json:"hashdigest"`
+	Signer     string    `json:"signer"`
+	Size       uint64    `json:"size"`
+	TimeStamp  time.Time `json:"timestamp"`
 }
 
 type PermissionList struct {
-	PublicKey  string `json:"publickey"`
+	Address    string `json:"address"`
 	Permission uint8  `json:"permission"`
 }
 
