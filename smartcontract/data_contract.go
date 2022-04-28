@@ -82,6 +82,18 @@ func (contract *smartcontract) ShareFile(priv, to, id string, pL entity.Permissi
 	return tx.Hash().Hex(), nil
 }
 
+func (contract *smartcontract) PurchaseFile(priv, id string) (string, bool, error) {
+	auth, _, err := contract.parseIdentity(priv)
+	if err != nil {
+		return "", false, fmt.Errorf("failed to purchase the file: %v", err)
+	}
+	tx, err := contract.dataContract.TradeFile(auth, id)
+	if err != nil {
+		return "", false, fmt.Errorf("failed to purchase the file: %v", err)
+	}
+	return tx.Hash().Hex(), true, nil
+}
+
 func (contract *smartcontract) QueryFile(id string) (entity.Data, error) {
 	f, err := contract.dataContract.QueryFile(nil, id)
 	if err != nil {

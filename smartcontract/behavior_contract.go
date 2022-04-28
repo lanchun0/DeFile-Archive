@@ -5,6 +5,7 @@ import (
 	"dfa/general"
 	"dfa/smartcontract/token"
 	"fmt"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
@@ -33,6 +34,60 @@ func (contract *smartcontract) Login(priv string) (entity.User, error) {
 	}
 	u := token2User(&user)
 	return u, nil
+}
+
+func (contract *smartcontract) Approve(priv string, price uint64) (bool, string, error) {
+	auth, _, err := contract.parseIdentity(priv)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot approve: invalid identity: %s", priv)
+	}
+	priceBig := new(big.Int).SetUint64(price)
+	tx, err := contract.userContract.Approve(auth, contract.dataAddress, priceBig)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot approve: %v", err)
+	}
+	fmt.Println("Successful approvement: ", tx.Hash().Hex())
+	return true, tx.Hash().Hex(), nil
+}
+
+func (contract *smartcontract) Topup(priv string, amount uint64) (bool, string, error) {
+	auth, _, err := contract.parseIdentity(priv)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot topup: invalid identity: %s", priv)
+	}
+	auth.Value = new(big.Int).SetUint64(amount)
+	tx, err := contract.userContract.Topup(auth, auth.Value)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot topup: %v", err)
+	}
+	fmt.Println("Successful topup: ", tx.Hash().Hex())
+	return true, tx.Hash().Hex(), nil
+}
+
+func (contract *smartcontract) WithDraw(priv string, amount uint64) (bool, string, error) {
+	auth, _, err := contract.parseIdentity(priv)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot withdraw: invalid identity: %s", priv)
+	}
+	auth.Value = new(big.Int).SetUint64(amount)
+	tx, err := contract.userContract.Withdraw(auth, auth.Value)
+	if err != nil {
+		return false, "", fmt.Errorf("error: cannot withdraw: %v", err)
+	}
+	fmt.Println("Successful withdraw: ", tx.Hash().Hex())
+	return true, tx.Hash().Hex(), nil
+}
+
+func (contract *smartcontract) GetAllowance(priv string) (uint64, error) {
+	_, addr, err := contract.parseIdentity(priv)
+	if err != nil {
+		return 0, fmt.Errorf("error: cannot query allowance: invalid identity: %s", priv)
+	}
+	amount, err := contract.userContract.Allowance(nil, addr, contract.dataAddress)
+	if err != nil {
+		return 0, fmt.Errorf("error: cannot query allowance:  %v", err)
+	}
+	return amount.Uint64(), nil
 }
 
 func token2User(user *token.ForForTokenUser) entity.User {

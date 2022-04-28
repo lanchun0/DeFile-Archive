@@ -36,13 +36,18 @@ var servers = [2]string{
 type SmartContract interface {
 	DeployContract() (err error)
 
+	GetAllowance(priv string) (amount uint64, err error)
 	Register() (entity.User, string, error)
 	Login(priv string) (entity.User, error)
+	Approve(priv string, price uint64) (success bool, tx string, err error)
+	Topup(priv string, amount uint64) (success bool, tx string, err error)
+	WithDraw(priv string, amount uint64) (success bool, tx string, err error)
 
 	CreateFile(priv string, data entity.Data) (tx string, err error)
 	ReadFile(priv, id string) (entity.Data, error)
 	WriteFile(priv string, data entity.Data) (string, error)
 	ShareFile(priv, to, id string, pL entity.Permission) (string, error)
+	PurchaseFile(priv, id string) (tx string, success bool, err error)
 
 	QueryFile(id string) (entity.Data, error)
 	QueryAllFiles() ([]entity.Data, error)
