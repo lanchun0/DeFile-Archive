@@ -2,66 +2,31 @@ package dto
 
 import (
 	"dfa/entity"
-	"dfa/general"
 
 	"fmt"
 	"strings"
 )
-
-type Credentials struct {
-	PublicKey  string `form:"publickey"`
-	PrivateKey string `form:"privatekey"`
-}
-
-type FileCreateRequest struct {
-	Token      string `form:"token"`
-	Permission string `form:"permission"`
-}
-
-type OneFileRequest struct {
-	ID string `json:"id"`
-}
-
-type ShareRequest struct {
-	Token      string `form:"token"`
-	ID         string `json:"id"`
-	To         string `json:"to"`
-	Permission string `json:"permission"`
-}
 
 type ViewData struct {
 	ID              string `json:"id"`
 	HashDigest      string `json:"hashdigest"`
 	Owner           string `json:"owner"`
 	PermissionLevel string `json:"permissionlevel"`
-	Signature       string `json:"signature"`
-	MeteData        MeteData
+	Tradable        bool   `json:"tradable"`
+	MeteData        entity.MeteData
 	PermissionList  []PermissionList
-}
-type MeteData struct {
-	FileName  string `json:"filename"`
-	Size      int64  `json:"size"`
-	TimeStamp string `json:"timestamp"`
 }
 
 type PermissionList struct {
-	PublicKey  string `json:"publickey"`
+	Address    string `json:"address"`
 	Permission string `json:"permission"`
 }
 
-type ViewBehavior struct {
-	PublicKey  string  `json:"publickey"`
-	PrivateKey string  `json:"privatekey"`
-	Assets     []Asset `json:"assets"`
-	Logs       []LogInfo
-}
-
-type LogInfo struct {
-	TimeStamp  string `json:"timestamp"`
-	PublicKey  string `json:"publickey"`
-	Method     string `json:"method"`
-	FileID     string `json:"fileid"`
-	HashDigest string `json:"hashdigest"`
+type ViewUser struct {
+	Address string `json:"address"`
+	Balance uint64 `json:"balance"`
+	// PrivateKey string  `json:"privatekey"`
+	Assets []Asset `json:"assets"`
 }
 
 type Asset struct {
@@ -80,16 +45,16 @@ var PL2String = map[uint8]string{
 func Psermission2String(peimission uint8) string {
 	str := ""
 	if peimission&uint8(entity.Owner) != 0 {
-		str = str + "owner"
+		str = str + " [owner]"
 	}
 	if peimission&uint8(entity.Administrator) != 0 {
-		str = str + "| administrator"
+		str = str + " [administrator]"
 	}
 	if peimission&uint8(entity.Writer) != 0 {
-		str = str + "| writer"
+		str = str + " [writer]"
 	}
 	if peimission&uint8(entity.Reader) != 0 {
-		str = str + "| reader"
+		str = str + " [reader]"
 	}
 	return str
 }
@@ -125,23 +90,17 @@ func String2PermissionLevel(pL string) (uint8, error) {
 }
 
 func Data2View(data entity.Data) ViewData {
-	time := general.Timestamp2Str(data.MeteData.TimeStamp)
 	v := ViewData{
 		ID:              data.ID,
-		HashDigest:      data.HashDigest,
 		Owner:           data.Owner,
 		PermissionLevel: PL2String[data.PermissionLevel],
-		Signature:       data.Signature,
-		MeteData: MeteData{
-			FileName:  data.MeteData.FileName,
-			TimeStamp: time,
-			Size:      data.MeteData.Size,
-		},
-		PermissionList: []PermissionList{},
+		Tradable:        data.Tradable,
+		MeteData:        data.MeteData,
+		PermissionList:  []PermissionList{},
 	}
 	for _, pl := range data.PermissionList {
 		view_pl := PermissionList{
-			PublicKey:  pl.PublicKey,
+			Address:    pl.Address,
 			Permission: Psermission2String(pl.Permission),
 		}
 		v.PermissionList = append(v.PermissionList, view_pl)
@@ -149,30 +108,18 @@ func Data2View(data entity.Data) ViewData {
 	return v
 }
 
-func Behavior2View(b entity.Behavior) ViewBehavior {
-	v := ViewBehavior{
-		PublicKey:  b.PublicKey,
-		PrivateKey: b.PrivateKey,
-		Assets:     []Asset{},
-		Logs:       []LogInfo{},
+func Behavior2View(u entity.User) ViewUser {
+	v := ViewUser{
+		Address: u.Address,
+		Balance: u.Balance,
+		Assets:  []Asset{},
 	}
-	for _, a := range b.Assets {
+	for _, a := range u.Assets {
 		view_asset := Asset{
 			FileID:     a.FileID,
 			Permission: Psermission2String(a.Permission),
 		}
 		v.Assets = append(v.Assets, view_asset)
-	}
-
-	for _, l := range b.Logs {
-		view_log := LogInfo{
-			TimeStamp:  general.Timestamp2Str(l.TimeStamp),
-			PublicKey:  l.PublicKey,
-			Method:     l.Method,
-			FileID:     l.FileID,
-			HashDigest: l.HashDigest,
-		}
-		v.Logs = append(v.Logs, view_log)
 	}
 	return v
 }

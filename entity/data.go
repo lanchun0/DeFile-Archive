@@ -8,9 +8,9 @@ type Data struct {
 	PermissionLevel uint8  `json:"permissionlevel"`
 	Tradable        bool   `json:"tradable"`
 	Price           uint64 `json:"price"`
-	Signature       string `json:"signature"`
-	MeteData        MeteData
-	PermissionList  []PermissionList
+	// Signature       string `json:"signature"`
+	MeteData       MeteData
+	PermissionList []PermissionList
 	// History         []DataHistory
 }
 

@@ -9,13 +9,12 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(pub, priv string) string
+	GenerateToken(priv string) string
 	ValidateToken(tokenString string) (*jwt.Token, error)
 }
 
 // jwtCustomClaims are custom claims extending default ones.
 type jwtCustomClaims struct {
-	PublicKey  string `json:"publickey"`
 	PrivateKey string `json:"privatekey"`
 	// Admin bool   `json:"admin"`
 	jwt.StandardClaims
@@ -41,20 +40,18 @@ func getSecretKey() string {
 	return secret
 }
 
-func (jwtSrv *jwtService) GenerateToken(pub, priv string) string {
+func (jwtSrv *jwtService) GenerateToken(priv string) string {
 	// Set custom and standard claims
 	claims := &jwtCustomClaims{
-		pub,
 		priv,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 8).Unix(),
 			Issuer:    jwtSrv.issuer,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	// Generate encoded token using the secret signing key
 	t, err := token.SignedString([]byte(jwtSrv.secretKey))
 	if err != nil {
@@ -74,15 +71,15 @@ func (jwtSrv *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) 
 	})
 }
 
-func ParseToken(tokenString string) (pub, priv string, err error) {
+func ParseToken(tokenString string) (priv string, err error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwtCustomClaims{}, func(token *jwt.Token) (i interface{}, err error) {
 		return getSecretKey(), nil
 	})
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	if claims, ok := token.Claims.(*jwtCustomClaims); ok && token.Valid { // 校验token
-		return claims.PublicKey, claims.PrivateKey, nil
+		return claims.PrivateKey, nil
 	}
-	return "", "", fmt.Errorf("invalid token")
+	return "", fmt.Errorf("invalid token")
 }

@@ -47,13 +47,13 @@ func (contract *smartcontract) ReadFile(priv, id string) (entity.Data, error) {
 }
 
 // To write a file, sign the hash digest
-func (contract *smartcontract) WriteFile(priv string, data entity.Data) (string, error) {
+func (contract *smartcontract) WriteFile(priv, id string, data entity.MeteData) (string, error) {
 	auth, _, err := contract.parseIdentity(priv)
 	if err != nil {
 		return "", fmt.Errorf("failed to write the file: %v", err)
 	}
-	id, name, digest := data.ID, data.MeteData.FileName, data.MeteData.HashDigest
-	time, size := general.Timestamp2Str(data.MeteData.TimeStamp), new(big.Int).SetUint64(data.MeteData.Size)
+	name, digest := data.FileName, data.HashDigest
+	time, size := general.Timestamp2Str(data.TimeStamp), new(big.Int).SetUint64(data.Size)
 	tx, err := contract.dataContract.WriteFile(auth, id, digest, name, size, time)
 	if err != nil {
 		return "", fmt.Errorf("failed to write the file: %v", err)

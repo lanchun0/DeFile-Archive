@@ -6,15 +6,18 @@ import (
 	"dfa/general"
 	"dfa/service"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (c *contractController) UploadFile(ctx *gin.Context) {
-	var request dto.FileCreateRequest
+func (c *dfaController) UploadFile(ctx *gin.Context) {
+	var request dto.UploadFileRequest
 	ctx.ShouldBind(&request)
-	pub, priv, err := service.ParseToken(request.Token)
+	priv, err := service.ParseToken(request.Token)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -22,9 +25,17 @@ func (c *contractController) UploadFile(ctx *gin.Context) {
 		})
 		return
 	}
+	permission, err := dto.String2Permission(request.PermissionLevel)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    err,
+		})
+		return
+	}
 
 	// upload the file
-	file, header, err := ctx.Request.FormFile("upload")
+	f, err := ctx.FormFile("file")
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -33,12 +44,43 @@ func (c *contractController) UploadFile(ctx *gin.Context) {
 		return
 	}
 	// store the file
-	defer file.Close()
+	err = ctx.SaveUploadedFile(f, "./tmp/"+f.Filename)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": "failed to save the file",
+		})
+		return
+	}
+	hashAddr, err := c.ipfsService.UploadFile("./tmp/" + f.Filename)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": "failed to upload the file",
+		})
+		return
+	}
+	fmt.Println("hash address: ", hashAddr)
+	file, err := os.Open("./tmp/" + f.Filename)
+	defer func() {
+		file.Close()
+		dir, _ := ioutil.ReadDir("/tmp")
+		for _, d := range dir {
+			os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
+		}
+	}()
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": "failed to save the file",
+		})
+		return
+	}
 	//
 	// fill in the table and submit to blockchain
 	id, _ := general.MakeUUID()
 	time := general.GenerateTimeStamp()
-	hash, err := general.MakeHashDigest(file)
+	digest, err := general.MakeHashDigest(file)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -46,61 +88,48 @@ func (c *contractController) UploadFile(ctx *gin.Context) {
 		})
 		return
 	}
-	hashBytes := general.String2Bytes(hash)
-	signature, err := general.MakeSignature(priv, hashBytes)
-	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to make signature",
-		})
-		return
-	}
-	permission, err := dto.String2Permission(request.Permission)
-	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": err,
-		})
-		return
-	}
 	data := entity.Data{
 		ID:              id,
-		HashDigest:      hash,
-		Owner:           pub,
 		PermissionLevel: permission,
-		Signature:       signature,
+		Tradable:        request.Tradable,
+		Price:           request.Price,
 		MeteData: entity.MeteData{
-			FileName:  header.Filename,
-			Size:      header.Size,
-			TimeStamp: time,
+			FileName:   f.Filename,
+			HashDigest: digest,
+			Size:       uint64(f.Size),
+			TimeStamp:  time,
 		},
 	}
-	tx, err := c.contractService.UploadFile(data)
+	tx1, err := c.contract.CreateFile(priv, data)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "falied to upload file",
+			"msg": "falied to create the file on blockchain",
+		})
+	}
+	tx2, err := c.contract.WriteFile(priv, id, data.MeteData)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "falied to write the file on blockchain",
 		})
 	}
 	view := dto.Data2View(data)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg":         "success uploading",
 		"data":        view,
-		"transaction": tx,
+		"transaction": "creat transaction: " + tx1 + "\nwrite transaction: " + tx2,
 	})
 
 }
 
-func (c *contractController) DownloadFile(ctx *gin.Context) {
+func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	//c.contractService.DownloadFile()
 }
 
-func (c *contractController) WriteFile(ctx *gin.Context) {
+func (c *dfaController) WriteFile(ctx *gin.Context) {
 	//c.contractService.WriteFile()
-}
-
-func (c *contractController) ShareFile(ctx *gin.Context) {
-	var request dto.ShareRequest
+	var request dto.WriteFileRequest
 	err := ctx.ShouldBind(request)
 	if err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -109,7 +138,29 @@ func (c *contractController) ShareFile(ctx *gin.Context) {
 		})
 		return
 	}
-	pub, _, err := service.ParseToken(request.Token)
+	_, err = service.ParseToken(request.Token)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    "token expired",
+		})
+		return
+	}
+
+}
+
+func (c *dfaController) ShareFile(ctx *gin.Context) {
+	var request dto.ShareFileRequest
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    err,
+		})
+		return
+	}
+	priv, err := service.ParseToken(request.Token)
 	if err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
 			"status": http.StatusNotAcceptable,
@@ -117,7 +168,15 @@ func (c *contractController) ShareFile(ctx *gin.Context) {
 		})
 		return
 	}
-	tx, err := c.contractService.ShareFile(pub, request.To, request.ID, request.Permission)
+	permission, err := dto.String2Permission(request.Permission)
+	if err != nil {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"status": http.StatusNotAcceptable,
+			"msg":    err,
+		})
+		return
+	}
+	tx, err := c.contract.ShareFile(priv, request.To, request.ID, entity.Permission(permission))
 	if err != nil {
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
 			"status": http.StatusNotAcceptable,
@@ -131,8 +190,8 @@ func (c *contractController) ShareFile(ctx *gin.Context) {
 	})
 }
 
-func (c *contractController) QueryFile(ctx *gin.Context) {
-	var request dto.OneFileRequest
+func (c *dfaController) QueryFile(ctx *gin.Context) {
+	var request dto.QueryFileRequest
 	err := ctx.ShouldBind(request)
 	if err != nil {
 		fmt.Println(err)
@@ -142,7 +201,7 @@ func (c *contractController) QueryFile(ctx *gin.Context) {
 		return
 	}
 
-	data, err := c.contractService.QueryFile(request.ID)
+	data, err := c.contract.QueryFile(request.ID)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -158,8 +217,15 @@ func (c *contractController) QueryFile(ctx *gin.Context) {
 
 }
 
-func (c *contractController) QueryAllFiles(ctx *gin.Context) {
-	data := c.contractService.QueryAllFiles()
+func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
+	data, err := c.contract.QueryAllFiles()
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err,
+		})
+		return
+	}
 	views := []dto.ViewData{}
 	for _, d := range data {
 		view := dto.Data2View(d)
@@ -169,4 +235,16 @@ func (c *contractController) QueryAllFiles(ctx *gin.Context) {
 		"msg":  "inquirying all files",
 		"data": views,
 	})
+}
+
+func (c *dfaController) PurchaseFile(ctx *gin.Context) {
+
+}
+
+func (c *dfaController) GetAddress(ctx *gin.Context) {
+
+}
+
+func (c *dfaController) GetAllowance(ctx *gin.Context) {
+
 }

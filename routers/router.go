@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRouter(server *gin.Engine, controller controller.ContractController) {
+func SetRouter(server *gin.Engine, controller controller.DFAController) {
 	server.Static("/css", "./templates/css")
 	server.LoadHTMLGlob("templates/*.html")
 

@@ -20,7 +20,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			log.Println("Claims[PublicKey]: ", claims["publickey"])
+			log.Println("Claims[PrivateKey]: ", claims["privatekey"])
 			log.Println("Claims[Issuer]: ", claims["iss"])
 			log.Println("Claims[IssuedAt]: ", claims["iat"])
 			log.Println("Claims[ExpiresAt]: ", claims["exp"])

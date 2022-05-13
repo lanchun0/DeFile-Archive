@@ -5,14 +5,16 @@ import (
 	"dfa/middlewares"
 	"dfa/routers"
 	"dfa/service"
+	"dfa/smartcontract"
 
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	contractService    service.ContractService       = service.NewContractService()
-	jwtService         service.JWTService            = service.NewJWTService()
-	contractController controller.ContractController = controller.NewContractController(contractService, jwtService)
+	contract      smartcontract.SmartContract = smartcontract.NewConract()
+	jwtService    service.JWTService          = service.NewJWTService()
+	ipfsService   service.IPFSService         = service.NewIPFSService()
+	dfaController controller.DFAController    = controller.NewDFAController(contract, ipfsService, jwtService)
 )
 
 // var (
@@ -24,7 +26,7 @@ var (
 func main() {
 	server := gin.New()
 	server.Use(gin.Recovery(), middlewares.Logger())
-	routers.SetRouter(server, contractController)
+	routers.SetRouter(server, dfaController)
 
 	server.Run(":7051")
 }
