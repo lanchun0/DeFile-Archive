@@ -32,29 +32,29 @@ func (contract *smartcontract) CreateFile(priv string, data entity.Data) (string
 }
 
 // To read a file, sign with the id of that file
-func (contract *smartcontract) ReadFile(priv, id string) (entity.Data, error) {
+func (contract *smartcontract) ReadFile(priv, id string) (string, entity.Data, error) {
 	_, addr, err := contract.parseIdentity(priv)
 	if err != nil {
-		return entity.Data{}, fmt.Errorf("failed to read the file: %v", err)
+		return "", entity.Data{}, fmt.Errorf("failed to read the file: %v", err)
 	}
 	opts := &bind.CallOpts{From: addr}
-	f, err := contract.dataContract.ReadFile(opts, id)
+	ipfsHash, f, err := contract.dataContract.ReadFile(opts, id)
 	if err != nil {
-		return entity.Data{}, fmt.Errorf("failed to read file: %v", err)
+		return ipfsHash, entity.Data{}, fmt.Errorf("failed to read file: %v", err)
 	}
 	data := offFile2Data(&f)
-	return data, nil
+	return ipfsHash, data, nil
 }
 
 // To write a file, sign the hash digest
-func (contract *smartcontract) WriteFile(priv, id string, data entity.MeteData) (string, error) {
+func (contract *smartcontract) WriteFile(priv, id, ipfsHash string, data entity.MeteData) (string, error) {
 	auth, _, err := contract.parseIdentity(priv)
 	if err != nil {
 		return "", fmt.Errorf("failed to write the file: %v", err)
 	}
 	name, digest := data.FileName, data.HashDigest
 	time, size := general.Timestamp2Str(data.TimeStamp), new(big.Int).SetUint64(data.Size)
-	tx, err := contract.dataContract.WriteFile(auth, id, digest, name, size, time)
+	tx, err := contract.dataContract.WriteFile(auth, id, digest, name, size, time, ipfsHash)
 	if err != nil {
 		return "", fmt.Errorf("failed to write the file: %v", err)
 	}

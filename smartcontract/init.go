@@ -44,8 +44,8 @@ type SmartContract interface {
 	WithDraw(priv string, amount uint64) (success bool, tx string, err error)
 
 	CreateFile(priv string, data entity.Data) (tx string, err error)
-	ReadFile(priv, id string) (entity.Data, error)
-	WriteFile(priv, id string, data entity.MeteData) (string, error)
+	ReadFile(priv, id string) (string, entity.Data, error)
+	WriteFile(priv, id, ipfsHash string, data entity.MeteData) (string, error)
 	ShareFile(priv, to, id string, pL entity.Permission) (string, error)
 	PurchaseFile(priv, id string) (tx string, success bool, err error)
 

@@ -43,6 +43,7 @@ contract FileSharing {
 
     // address behavior;
     mapping (string => File) files;   // fileID => File
+    mapping (string => string) id2IPFS; //  fileID => IPFS cid
     mapping (string => uint8) permLevels;
     mapping (string => uint8) perms;
     mapping (uint256 => string) index; // index => fileid
@@ -87,7 +88,7 @@ contract FileSharing {
         return fileAmount;
     } 
 
-    function writeFile(string calldata _fileID, string calldata _digest, string calldata _fileName, uint _size, string calldata _time)public {
+    function writeFile(string calldata _fileID, string calldata _digest, string calldata _fileName, uint _size, string calldata _time, string calldata _ipfsHash)public {
         require((files[_fileID].permissionList[msg.sender]&perms["writer"])!=0,"No authority to write");
         require(files[_fileID].permissionLevel<permLevels["L_0"]||files[_fileID].permissionList[msg.sender]&perms["owner"]!=0,"No autority to write");
         files[_fileID].meteData.hashDigest = _digest;
@@ -95,10 +96,11 @@ contract FileSharing {
         files[_fileID].meteData.size = _size;
         files[_fileID].meteData.timestamp = _time;
         files[_fileID].meteData.signer = msg.sender;
+        id2IPFS[_fileID] = _ipfsHash;
         emit WriteFile(msg.sender,  _fileID,  _digest);
     }
 
-    function readFile(string calldata _fileID) public view returns(QueryFile memory) {
+    function readFile(string calldata _fileID) public view returns(string memory ipfsHash, QueryFile memory) {
         require(files[_fileID].permissionList[msg.sender]>=perms["owner"]||files[_fileID].permissionLevel<permLevels["L_0"],"No autority to read");
         require(files[_fileID].permissionList[msg.sender]>=perms["reader"]||files[_fileID].permissionLevel<=permLevels["L_3"],"No autority to read");
         QueryFile memory f;
@@ -119,7 +121,7 @@ contract FileSharing {
             f.permissionList[i].user = files[_fileID].listIndex[i];     
             f.permissionList[i].permission = files[_fileID].permissionList[f.permissionList[i].user];
         }
-        return f;
+        return (id2IPFS[_fileID],f);
     } 
 
     function authorize(address _to, string calldata _fileID, uint8 _perm) public  {
