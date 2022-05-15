@@ -18,7 +18,7 @@ type DFAController interface {
 	DownloadFile(ctx *gin.Context)
 	WriteFile(ctx *gin.Context)
 	ShareFile(ctx *gin.Context)
-	PurchaseFile(ctx *gin.Context)
+	BuyAFile(ctx *gin.Context)
 
 	QueryFile(ctx *gin.Context)
 	QueryAllFiles(ctx *gin.Context)

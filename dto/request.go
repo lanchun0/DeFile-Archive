@@ -4,6 +4,10 @@ type Credentials struct {
 	PrivateKey string `json:"privatekey"`
 }
 
+type TokenIdentity struct {
+	Token string `json:"token"`
+}
+
 type TopupRequest struct {
 	Token  string `json:"token"`
 	Amount uint64 `json:"amount"`
@@ -28,6 +32,12 @@ type UploadFileRequest struct {
 
 type WriteFileRequest struct {
 	Token string `json:"token"`
+	ID    string `json:"id"`
+}
+
+type BuyAFileRequest struct {
+	Token string `json:"token"`
+	ID    string `json:"id"`
 }
 
 type ShareFileRequest struct {

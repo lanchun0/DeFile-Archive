@@ -17,47 +17,38 @@ import (
 func (c *dfaController) UploadFile(ctx *gin.Context) {
 	var request dto.UploadFileRequest
 	ctx.ShouldBind(&request)
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to upload a file",
+		})
+	}
 	priv, err := service.ParseToken(request.Token)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to parse token",
-		})
+		errFunc(err)
 		return
 	}
 	permission, err := dto.String2Permission(request.PermissionLevel)
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    err,
-		})
+		errFunc(err)
 		return
 	}
 
 	// upload the file
 	f, err := ctx.FormFile("file")
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to request file",
-		})
+		errFunc(err)
 		return
 	}
 	// store the file
 	err = ctx.SaveUploadedFile(f, "./tmp/"+f.Filename)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to save the file",
-		})
+		errFunc(err)
 		return
 	}
 	hashAddr, err := c.ipfsService.UploadFile("./tmp/" + f.Filename)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to upload the file",
-		})
+		errFunc(err)
 		return
 	}
 	fmt.Println("hash address: ", hashAddr)
@@ -70,10 +61,7 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 		}
 	}()
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to save the file",
-		})
+		errFunc(err)
 		return
 	}
 	//
@@ -82,10 +70,7 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	time := general.GenerateTimeStamp()
 	digest, err := general.MakeHashDigest(file)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to create digest",
-		})
+		errFunc(err)
 		return
 	}
 	data := entity.Data{
@@ -102,17 +87,13 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	}
 	tx1, err := c.contract.CreateFile(priv, data)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "falied to create the file on blockchain",
-		})
+		errFunc(err)
+		return
 	}
-	tx2, err := c.contract.WriteFile(priv, id, data.MeteData)
+	tx2, err := c.contract.WriteFile(priv, id, hashAddr, data.MeteData)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "falied to write the file on blockchain",
-		})
+		errFunc(err)
+		return
 	}
 	view := dto.Data2View(data)
 	ctx.JSON(http.StatusAccepted, gin.H{
@@ -138,7 +119,7 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 		})
 		return
 	}
-	_, err = service.ParseToken(request.Token)
+	priv, err := service.ParseToken(request.Token)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusNotAcceptable, gin.H{
@@ -147,41 +128,42 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 		})
 		return
 	}
+	tx, err := c.contract.WriteFile(priv, request.ID, hashAddr, data.MeteData)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "falied to write the file on blockchain",
+		})
+	}
 
 }
 
 func (c *dfaController) ShareFile(ctx *gin.Context) {
 	var request dto.ShareFileRequest
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to share a file",
+		})
+	}
 	err := ctx.ShouldBind(request)
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    err,
-		})
+		errFunc(err)
 		return
 	}
 	priv, err := service.ParseToken(request.Token)
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    "token expired",
-		})
+		errFunc(err)
 		return
 	}
 	permission, err := dto.String2Permission(request.Permission)
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    err,
-		})
+		errFunc(err)
 		return
 	}
 	tx, err := c.contract.ShareFile(priv, request.To, request.ID, entity.Permission(permission))
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    err,
-		})
+		errFunc(err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -211,7 +193,7 @@ func (c *dfaController) QueryFile(ctx *gin.Context) {
 	}
 	view := dto.Data2View(data)
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": http.StatusOK,
+		"status": http.StatusAccepted,
 		"data":   view,
 	})
 
@@ -219,11 +201,14 @@ func (c *dfaController) QueryFile(ctx *gin.Context) {
 
 func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
 	data, err := c.contract.QueryAllFiles()
-	if err != nil {
+	errFunc := func(err error) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": err,
+			"msg": "failed to query files",
 		})
+	}
+	if err != nil {
+		errFunc(err)
 		return
 	}
 	views := []dto.ViewData{}
@@ -237,14 +222,78 @@ func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
 	})
 }
 
-func (c *dfaController) PurchaseFile(ctx *gin.Context) {
-
+func (c *dfaController) BuyAFile(ctx *gin.Context) {
+	var request dto.BuyAFileRequest
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to buy a file",
+		})
+	}
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	priv, err := service.ParseToken(request.Token)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	tx, ok, err := c.contract.PurchaseFile(priv, request.ID)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	if !ok {
+		ctx.JSON(http.StatusNotAcceptable, gin.H{
+			"msg": "failed to buy a file: " + err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"msg":         "succeeded in buying a file",
+		"transaction": tx,
+	})
 }
 
 func (c *dfaController) GetAddress(ctx *gin.Context) {
+	dataAddr := c.contract.GetDataContractAddress()
+	userAddr := c.contract.GetUserContractAddress()
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"msg":   "smart contract address on Etherueum",
+		"addr1": "file sharing contract address:\n" + dataAddr,
+		"addr2": "user & ForFortoken contract address:\n" + userAddr,
+	})
 
 }
 
 func (c *dfaController) GetAllowance(ctx *gin.Context) {
+	var request dto.TokenIdentity
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to query allowance",
+		})
+	}
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	priv, err := service.ParseToken(request.Token)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	amount, err := c.contract.GetAllowance(priv)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":    "allowed to spend with ForForToken",
+		"amount": amount,
+	})
 
 }
