@@ -29,7 +29,7 @@ type ipfsService struct {
 
 type IPFSService interface {
 	UploadFile(string) (string, error)
-	DownloadFile(hash string) error
+	DownloadFile(hash string) (string, error)
 	Destroy()
 }
 
@@ -63,10 +63,10 @@ func (service *ipfsService) UploadFile(path string) (string, error) {
 	return strings.Split(cidFile.String(), "/")[2], nil
 }
 
-func (service *ipfsService) DownloadFile(hash string) error {
+func (service *ipfsService) DownloadFile(hash string) (string, error) {
 	c, err := cid.Decode(hash)
 	if err != nil {
-		return fmt.Errorf("failed to download: %v", err)
+		return "", fmt.Errorf("failed to download: %v", err)
 	}
 	cidFile := icorePath.IpfsPath(c)
 	// outputBasePath, err := ioutil.TempDir("output", "file_")
@@ -86,24 +86,23 @@ func (service *ipfsService) DownloadFile(hash string) error {
 	f, err := ioutil.TempFile("output", "file_")
 	defer f.Close()
 	if err != nil {
-		return fmt.Errorf("could not create output file : %v", err)
+		return "", fmt.Errorf("could not create output file : %v", err)
 	}
 	rootNodeFile, err := service.ipfs.Unixfs().Get(service.ctx, cidFile)
 	if err != nil {
-		return fmt.Errorf("failed to download: %v", err)
+		return "", fmt.Errorf("failed to download: %v", err)
 	}
 	switch nd := rootNodeFile.(type) {
 	case files.File:
 		_, err := io.Copy(f, nd)
 		if err != nil {
-			return fmt.Errorf("failed to copy: %v", err)
+			return "", fmt.Errorf("failed to copy: %v", err)
 		}
-		break
 	default:
-		return fmt.Errorf("file type %T at %q is not supported", nd, f.Name())
+		return "", fmt.Errorf("file type %T at %q is not supported", nd, f.Name())
 	}
 
-	return nil
+	return f.Name(), nil
 }
 
 func (service *ipfsService) Destroy() {

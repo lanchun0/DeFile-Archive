@@ -35,6 +35,11 @@ type WriteFileRequest struct {
 	ID    string `json:"id"`
 }
 
+type DownloadFileRequest struct {
+	Token string `json:"token"`
+	ID    string `json:"id"`
+}
+
 type BuyAFileRequest struct {
 	Token string `json:"token"`
 	ID    string `json:"id"`

@@ -106,36 +106,114 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 
 func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	//c.contractService.DownloadFile()
+	var request dto.DownloadFileRequest
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to download a file",
+		})
+	}
+	err := ctx.ShouldBind(request)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	priv, err := service.ParseToken(request.Token)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	ipfsHash, data, err := c.contract.ReadFile(priv, request.ID)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	name, err := c.ipfsService.DownloadFile(ipfsHash)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	err = os.Rename("./tmp"+name, data.MeteData.FileName)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%s", data.MeteData.FileName))
+	ctx.File("./tmp" + data.MeteData.FileName)
+	dir, _ := ioutil.ReadDir("/tmp")
+	for _, d := range dir {
+		os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
+	}
 }
 
 func (c *dfaController) WriteFile(ctx *gin.Context) {
 	//c.contractService.WriteFile()
 	var request dto.WriteFileRequest
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to upload a file",
+		})
+	}
 	err := ctx.ShouldBind(request)
 	if err != nil {
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    err,
-		})
+		errFunc(err)
 		return
 	}
 	priv, err := service.ParseToken(request.Token)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"status": http.StatusNotAcceptable,
-			"msg":    "token expired",
-		})
+		errFunc(err)
 		return
 	}
-	tx, err := c.contract.WriteFile(priv, request.ID, hashAddr, data.MeteData)
+	// save the file locally
+	f, err := ctx.FormFile("file")
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "falied to write the file on blockchain",
-		})
+		errFunc(err)
+		return
 	}
-
+	err = ctx.SaveUploadedFile(f, "./tmp/"+f.Filename)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	hashAddr, err := c.ipfsService.UploadFile("./tmp/" + f.Filename)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	fmt.Println("hash address: ", hashAddr)
+	file, err := os.Open("./tmp/" + f.Filename)
+	defer func() {
+		file.Close()
+		dir, _ := ioutil.ReadDir("/tmp")
+		for _, d := range dir {
+			os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
+		}
+	}()
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	time := general.GenerateTimeStamp()
+	digest, err := general.MakeHashDigest(file)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	data := entity.MeteData{
+		FileName:   f.Filename,
+		HashDigest: digest,
+		Size:       uint64(f.Size),
+		TimeStamp:  time,
+	}
+	tx, err := c.contract.WriteFile(priv, request.ID, hashAddr, data)
+	if err != nil {
+		errFunc(err)
+	}
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"msg":         "succeeded in writing file: " + request.ID,
+		"transaction": tx,
+	})
 }
 
 func (c *dfaController) ShareFile(ctx *gin.Context) {
