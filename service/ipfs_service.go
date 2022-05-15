@@ -39,6 +39,7 @@ func NewIPFSService() IPFSService {
 	if err != nil {
 		panic(fmt.Errorf("failed to spawn ephemeral node: %s", err))
 	}
+	fmt.Println("Succeeded in spawning, IPFS conneceted ")
 
 	return &ipfsService{
 		ctx:    ctx,

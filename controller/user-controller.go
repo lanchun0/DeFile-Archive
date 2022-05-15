@@ -11,7 +11,7 @@ import (
 )
 
 func (c *dfaController) Register(ctx *gin.Context) {
-	behavior, tx, err := c.contract.Register()
+	user, priv, err := c.contract.Register()
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -20,8 +20,8 @@ func (c *dfaController) Register(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"behavior":    behavior,
-		"transaction": tx,
+		"user":       user,
+		"privatekey": priv,
 	})
 }
 
@@ -36,6 +36,7 @@ func (c *dfaController) Login(ctx *gin.Context) {
 		})
 		return
 	}
+	//fmt.Println(credentials.PrivateKey)
 	b, err := c.contract.Login(credentials.PrivateKey)
 	if err != nil {
 		fmt.Println(err)
@@ -46,9 +47,9 @@ func (c *dfaController) Login(ctx *gin.Context) {
 	}
 	token := c.jWtService.GenerateToken(credentials.PrivateKey)
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":      "success login",
-		"behavior": b,
-		"token":    token,
+		"msg":   "success login",
+		"user":  b,
+		"token": token,
 	})
 }
 

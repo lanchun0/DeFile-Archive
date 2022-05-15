@@ -13,7 +13,7 @@ func SetRouter(server *gin.Engine, controller controller.DFAController) {
 
 	apiRoutes := server.Group("/defile")
 	apiRoutes.POST("/register", controller.Register)
-	apiRoutes.GET("/login", controller.Login)
+	apiRoutes.POST("/login", controller.Login)
 
 	apiRoutes.Use(middlewares.AuthorizeJWT())
 	{

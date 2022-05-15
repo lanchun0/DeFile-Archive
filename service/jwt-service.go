@@ -72,14 +72,12 @@ func (jwtSrv *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) 
 }
 
 func ParseToken(tokenString string) (priv string, err error) {
-	token, err := jwt.ParseWithClaims(tokenString, &jwtCustomClaims{}, func(token *jwt.Token) (i interface{}, err error) {
-		return getSecretKey(), nil
-	})
-	if err != nil {
-		return "", err
+	token, err := NewJWTService().ValidateToken(tokenString)
+	if token.Valid {
+		claims := token.Claims.(jwt.MapClaims)
+		priv = claims["privatekey"].(string)
+		fmt.Println(priv)
+		return priv, nil
 	}
-	if claims, ok := token.Claims.(*jwtCustomClaims); ok && token.Valid { // 校验token
-		return claims.PrivateKey, nil
-	}
-	return "", fmt.Errorf("invalid token")
+	return "", err
 }

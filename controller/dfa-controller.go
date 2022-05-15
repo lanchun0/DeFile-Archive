@@ -3,11 +3,13 @@ package controller
 import (
 	"dfa/service"
 	"dfa/smartcontract"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 type DFAController interface {
+	Init() error
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	Topup(ctx *gin.Context)
@@ -40,4 +42,13 @@ func NewDFAController(contract smartcontract.SmartContract, ipfsService service.
 		jWtService:  jwtService,
 		ipfsService: ipfsService,
 	}
+}
+
+func (c *dfaController) Init() error {
+	err := c.contract.DeployContract()
+	if err != nil {
+		return fmt.Errorf("failed to deploy the smart contract: %v", err)
+	}
+	fmt.Println("Succeeded deploying smart contract")
+	return nil
 }
