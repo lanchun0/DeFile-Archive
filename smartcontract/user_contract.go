@@ -57,7 +57,8 @@ func (contract *smartcontract) Topup(priv string, amount uint64) (bool, string, 
 	}
 	value := amount*3600 + 1
 	auth.Value = new(big.Int).SetUint64(value)
-	tx, err := contract.userContract.Topup(auth, auth.Value)
+	tokenValue := new(big.Int).SetUint64(amount)
+	tx, err := contract.userContract.Topup(auth, tokenValue)
 	if err != nil {
 		return false, "", fmt.Errorf("error: cannot topup: %v", err)
 	}

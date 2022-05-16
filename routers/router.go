@@ -17,8 +17,8 @@ func SetRouter(server *gin.Engine, controller controller.DFAController) {
 
 	apiRoutes.Use(middlewares.AuthorizeJWT())
 	{
-		apiRoutes.GET("/download", controller.DownloadFile)
-		apiRoutes.GET("/write", controller.WriteFile)
+		apiRoutes.POST("/download", controller.DownloadFile)
+		apiRoutes.POST("/write", controller.WriteFile)
 		apiRoutes.POST("/share", controller.ShareFile)
 		apiRoutes.POST("/upload", controller.UploadFile)
 

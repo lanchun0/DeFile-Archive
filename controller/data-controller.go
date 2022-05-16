@@ -7,33 +7,52 @@ import (
 	"dfa/service"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
+// POST (token)
+// param: permissionlevel string
+//        price uint
+//        tradable bool
+//        file file
 func (c *dfaController) UploadFile(ctx *gin.Context) {
-	var request dto.UploadFileRequest
-	ctx.ShouldBind(&request)
 	errFunc := func(err error) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to upload a file",
 		})
 	}
-	priv, err := service.ParseToken(request.Token)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	permission, err := dto.String2Permission(request.PermissionLevel)
+	permLevelStr := ctx.DefaultPostForm("permissionlevel", "N.A.")
+	permLevel, err := dto.String2PermissionLevel(permLevelStr)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-
+	priceStr := ctx.DefaultPostForm("price", "0")
+	price, err := strconv.Atoi(priceStr)
+	if err != nil || price <= 0 {
+		if price <= 0 {
+			err = fmt.Errorf("invalid price: %s", priceStr)
+		}
+		errFunc(err)
+		return
+	}
+	cantrade, tradable := ctx.DefaultPostForm("tradable", "false"), false
+	if cantrade == "true" || cantrade == "T" || cantrade == "t" {
+		tradable = true
+	}
 	// upload the file
 	f, err := ctx.FormFile("file")
 	if err != nil {
@@ -75,9 +94,9 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	}
 	data := entity.Data{
 		ID:              id,
-		PermissionLevel: permission,
-		Tradable:        request.Tradable,
-		Price:           request.Price,
+		PermissionLevel: permLevel,
+		Tradable:        tradable,
+		Price:           uint64(price),
 		MeteData: entity.MeteData{
 			FileName:   f.Filename,
 			HashDigest: digest,
@@ -97,33 +116,32 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	}
 	view := dto.Data2View(data)
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":         "success uploading",
-		"data":        view,
-		"transaction": "creat transaction: " + tx1 + "\nwrite transaction: " + tx2,
+		"msg":                   "success uploading",
+		"data":                  view,
+		"transaction [created]": tx1,
+		"transaction [writed]":  tx2,
 	})
 
 }
 
+// POST (token)
+// param: id string
 func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	//c.contractService.DownloadFile()
-	var request dto.DownloadFileRequest
 	errFunc := func(err error) {
-		fmt.Println(err)
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to download a file",
 		})
 	}
-	err := ctx.ShouldBind(request)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	priv, err := service.ParseToken(request.Token)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	ipfsHash, data, err := c.contract.ReadFile(priv, request.ID)
+	id := ctx.DefaultPostForm("id", "nil")
+	ipfsHash, data, err := c.contract.ReadFile(priv, id)
 	if err != nil {
 		errFunc(err)
 		return
@@ -146,25 +164,23 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	}
 }
 
+// POST (token)
+// id string
+// file file
 func (c *dfaController) WriteFile(ctx *gin.Context) {
-	//c.contractService.WriteFile()
-	var request dto.WriteFileRequest
 	errFunc := func(err error) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to upload a file",
 		})
 	}
-	err := ctx.ShouldBind(request)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	priv, err := service.ParseToken(request.Token)
-	if err != nil {
-		errFunc(err)
-		return
-	}
+	id := ctx.DefaultPostForm("id", "N.A.")
 	// save the file locally
 	f, err := ctx.FormFile("file")
 	if err != nil {
@@ -206,40 +222,42 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 		Size:       uint64(f.Size),
 		TimeStamp:  time,
 	}
-	tx, err := c.contract.WriteFile(priv, request.ID, hashAddr, data)
+	tx, err := c.contract.WriteFile(priv, id, hashAddr, data)
 	if err != nil {
 		errFunc(err)
 	}
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":         "succeeded in writing file: " + request.ID,
+		"msg":         "succeeded in writing file: " + id,
 		"transaction": tx,
 	})
 }
 
+// POST (token)
+// param: id string
+//        to string
+//        permission string
 func (c *dfaController) ShareFile(ctx *gin.Context) {
-	var request dto.ShareFileRequest
 	errFunc := func(err error) {
-		fmt.Println(err)
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to share a file",
 		})
 	}
-	err := ctx.ShouldBind(request)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	priv, err := service.ParseToken(request.Token)
+	id := ctx.DefaultPostForm("id", "N.A.")
+	to := ctx.DefaultPostForm("to", "N.A.")
+	perm := ctx.DefaultPostForm("permission", "N.A.")
+	permission, err := dto.String2Permission(perm)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	permission, err := dto.String2Permission(request.Permission)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	tx, err := c.contract.ShareFile(priv, request.To, request.ID, entity.Permission(permission))
+	tx, err := c.contract.ShareFile(priv, to, id, entity.Permission(permission))
 	if err != nil {
 		errFunc(err)
 		return
@@ -250,23 +268,19 @@ func (c *dfaController) ShareFile(ctx *gin.Context) {
 	})
 }
 
+// GET no token
+// param id string
 func (c *dfaController) QueryFile(ctx *gin.Context) {
-	var request dto.QueryFileRequest
-	err := ctx.ShouldBind(request)
-	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": "failed to request file",
+	errFunc := func(err error) {
+		log.Println(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "failed to query a file",
 		})
-		return
 	}
-
-	data, err := c.contract.QueryFile(request.ID)
+	id := ctx.DefaultQuery("id", "N.A.")
+	data, err := c.contract.QueryFile(id)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusNotAcceptable, gin.H{
-			"msg": err,
-		})
+		errFunc(err)
 		return
 	}
 	view := dto.Data2View(data)
@@ -277,6 +291,8 @@ func (c *dfaController) QueryFile(ctx *gin.Context) {
 
 }
 
+// GET no token
+// no param
 func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
 	data, err := c.contract.QueryAllFiles()
 	errFunc := func(err error) {
@@ -300,25 +316,23 @@ func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
 	})
 }
 
+// POSt (token)
+// param: id string
 func (c *dfaController) BuyAFile(ctx *gin.Context) {
-	var request dto.BuyAFileRequest
 	errFunc := func(err error) {
-		fmt.Println(err)
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to buy a file",
 		})
 	}
-	err := ctx.ShouldBind(request)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return
 	}
-	priv, err := service.ParseToken(request.Token)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	tx, ok, err := c.contract.PurchaseFile(priv, request.ID)
+	id := ctx.DefaultPostForm("id", "N.A.")
+	tx, ok, err := c.contract.PurchaseFile(priv, id)
 	if err != nil {
 		errFunc(err)
 		return
@@ -335,6 +349,8 @@ func (c *dfaController) BuyAFile(ctx *gin.Context) {
 	})
 }
 
+// GET (no token)
+// no param
 func (c *dfaController) GetAddress(ctx *gin.Context) {
 	dataAddr := c.contract.GetDataContractAddress()
 	userAddr := c.contract.GetUserContractAddress()
@@ -346,20 +362,17 @@ func (c *dfaController) GetAddress(ctx *gin.Context) {
 
 }
 
+// GET (token)
+// no param
 func (c *dfaController) GetAllowance(ctx *gin.Context) {
-	var request dto.TokenIdentity
 	errFunc := func(err error) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to query allowance",
 		})
 	}
-	err := ctx.ShouldBind(request)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	priv, err := service.ParseToken(request.Token)
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
 	if err != nil {
 		errFunc(err)
 		return

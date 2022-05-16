@@ -72,7 +72,12 @@ func (jwtSrv *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) 
 }
 
 func ParseToken(tokenString string) (priv string, err error) {
-	token, err := NewJWTService().ValidateToken(tokenString)
+	if len(tokenString) <= len("Bearer ") {
+		err = fmt.Errorf("failed to parse token with invalid length")
+		return "", err
+	}
+	tokenStr := tokenString[len("Bearer "):]
+	token, err := NewJWTService().ValidateToken(tokenStr)
 	if token.Valid {
 		claims := token.Claims.(jwt.MapClaims)
 		priv = claims["privatekey"].(string)
