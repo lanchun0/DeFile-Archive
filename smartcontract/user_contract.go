@@ -71,8 +71,9 @@ func (contract *smartcontract) WithDraw(priv string, amount uint64) (bool, strin
 	if err != nil {
 		return false, "", fmt.Errorf("error: cannot withdraw: invalid identity: %s", priv)
 	}
-	auth.Value = new(big.Int).SetUint64(amount)
-	tx, err := contract.userContract.Withdraw(auth, auth.Value)
+	// auth.Value = new(big.Int).SetUint64(amount)
+	value := new(big.Int).SetUint64(amount)
+	tx, err := contract.userContract.Withdraw(auth, value)
 	if err != nil {
 		return false, "", fmt.Errorf("error: cannot withdraw: %v", err)
 	}

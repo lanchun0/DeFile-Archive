@@ -8,8 +8,8 @@ import (
 )
 
 type ViewData struct {
-	ID              string `json:"id"`
-	HashDigest      string `json:"hashdigest"`
+	ID string `json:"id"`
+	// HashDigest      string `json:"hashdigest"`
 	Owner           string `json:"owner"`
 	PermissionLevel string `json:"permissionlevel"`
 	Tradable        bool   `json:"tradable"`

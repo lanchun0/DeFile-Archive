@@ -23,7 +23,7 @@ import (
 //        file file
 func (c *dfaController) UploadFile(ctx *gin.Context) {
 	errFunc := func(err error) {
-		fmt.Println(err)
+		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to upload a file",
 		})
@@ -42,8 +42,8 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	}
 	priceStr := ctx.DefaultPostForm("price", "0")
 	price, err := strconv.Atoi(priceStr)
-	if err != nil || price <= 0 {
-		if price <= 0 {
+	if err != nil || price < 0 {
+		if price < 0 {
 			err = fmt.Errorf("invalid price: %s", priceStr)
 		}
 		errFunc(err)
@@ -74,7 +74,7 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	file, err := os.Open("./tmp/" + f.Filename)
 	defer func() {
 		file.Close()
-		dir, _ := ioutil.ReadDir("/tmp")
+		dir, _ := ioutil.ReadDir("./tmp")
 		for _, d := range dir {
 			os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
 		}
@@ -115,11 +115,14 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 		return
 	}
 	view := dto.Data2View(data)
+	b, _ := c.contract.Login(priv)
+	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg":                   "success uploading",
 		"data":                  view,
 		"transaction [created]": tx1,
 		"transaction [writed]":  tx2,
+		"user":                  u,
 	})
 
 }
@@ -133,6 +136,12 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to download a file",
 		})
+	}
+	deleFunc := func() {
+		dir, _ := ioutil.ReadDir("./tmp")
+		for _, d := range dir {
+			os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
+		}
 	}
 	token := ctx.GetHeader("Authorization")
 	priv, err := service.ParseToken(token)
@@ -151,17 +160,17 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		errFunc(err)
 		return
 	}
-	err = os.Rename("./tmp"+name, data.MeteData.FileName)
+	err = os.Rename("./"+name, "./tmp/"+data.MeteData.FileName)
 	if err != nil {
 		errFunc(err)
 		return
 	}
 	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%s", data.MeteData.FileName))
 	ctx.File("./tmp" + data.MeteData.FileName)
-	dir, _ := ioutil.ReadDir("/tmp")
-	for _, d := range dir {
-		os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
-	}
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"msg": "succeeded in downloading file: " + id,
+	})
+	defer deleFunc()
 }
 
 // POST (token)
@@ -226,9 +235,12 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 	if err != nil {
 		errFunc(err)
 	}
+	b, _ := c.contract.Login(priv)
+	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg":         "succeeded in writing file: " + id,
 		"transaction": tx,
+		"user":        u,
 	})
 }
 
@@ -323,6 +335,7 @@ func (c *dfaController) BuyAFile(ctx *gin.Context) {
 		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to buy a file",
+			"err": err,
 		})
 	}
 	token := ctx.GetHeader("Authorization")
@@ -343,9 +356,12 @@ func (c *dfaController) BuyAFile(ctx *gin.Context) {
 		})
 		return
 	}
+	b, _ := c.contract.Login(priv)
+	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg":         "succeeded in buying a file",
 		"transaction": tx,
+		"user":        u,
 	})
 }
 
@@ -358,33 +374,6 @@ func (c *dfaController) GetAddress(ctx *gin.Context) {
 		"msg":   "smart contract address on Etherueum",
 		"addr1": "file sharing contract address:\n" + dataAddr,
 		"addr2": "user & ForFortoken contract address:\n" + userAddr,
-	})
-
-}
-
-// GET (token)
-// no param
-func (c *dfaController) GetAllowance(ctx *gin.Context) {
-	errFunc := func(err error) {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "failed to query allowance",
-		})
-	}
-	token := ctx.GetHeader("Authorization")
-	priv, err := service.ParseToken(token)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	amount, err := c.contract.GetAllowance(priv)
-	if err != nil {
-		errFunc(err)
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg":    "allowed to spend with ForForToken",
-		"amount": amount,
 	})
 
 }

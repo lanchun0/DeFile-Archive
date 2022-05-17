@@ -65,6 +65,7 @@ func (service *ipfsService) UploadFile(path string) (string, error) {
 }
 
 func (service *ipfsService) DownloadFile(hash string) (string, error) {
+	// fmt.Println("downloading: ", hash)
 	c, err := cid.Decode(hash)
 	if err != nil {
 		return "", fmt.Errorf("failed to download: %v", err)
@@ -84,11 +85,11 @@ func (service *ipfsService) DownloadFile(hash string) (string, error) {
 	// if err != nil {
 	// 	return fmt.Errorf("Could not write out the fetched : %v", err)
 	// }
-	f, err := ioutil.TempFile("output", "file_")
-	defer f.Close()
+	f, err := ioutil.TempFile("tmp", "file_")
 	if err != nil {
 		return "", fmt.Errorf("could not create output file : %v", err)
 	}
+	defer f.Close()
 	rootNodeFile, err := service.ipfs.Unixfs().Get(service.ctx, cidFile)
 	if err != nil {
 		return "", fmt.Errorf("failed to download: %v", err)
@@ -198,25 +199,25 @@ func createNode(ctx context.Context, repoPath string) (icore.CoreAPI, error) {
 //Part 2 - Adding a file and a directory to IPFS
 
 //Prepare the file to be added to IPFS
-func getUnixfsFile(path string) (files.File, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+// func getUnixfsFile(path string) (files.File, error) {
+// 	file, err := os.Open(path)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer file.Close()
 
-	st, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
+// 	st, err := file.Stat()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	f, err := files.NewReaderPathFile(path, file, st)
-	if err != nil {
-		return nil, err
-	}
+// 	f, err := files.NewReaderPathFile(path, file, st)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return f, nil
-}
+// 	return f, nil
+// }
 
 func getUnixfsNode(path string) (files.Node, error) {
 	st, err := os.Stat(path)
