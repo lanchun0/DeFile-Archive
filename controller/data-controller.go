@@ -210,7 +210,7 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 	file, err := os.Open("./tmp/" + f.Filename)
 	defer func() {
 		file.Close()
-		dir, _ := ioutil.ReadDir("/tmp")
+		dir, _ := ioutil.ReadDir("./tmp")
 		for _, d := range dir {
 			os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
 		}

@@ -46,9 +46,10 @@ func (c *dfaController) Login(ctx *gin.Context) {
 		return
 	}
 	token := c.jWtService.GenerateToken(priv)
+	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg":   "success login",
-		"user":  b,
+		"user":  u,
 		"token": token,
 	})
 }
