@@ -166,7 +166,9 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		return
 	}
 	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%s", data.MeteData.FileName))
-	ctx.File("./tmp" + data.MeteData.FileName)
+	ctx.File("./tmp/" + data.MeteData.FileName)
+	// ctx.Writer.Header().Set("Content-Length", "-1")
+	// ctx.Header("Content-Length", "-1")
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"msg": "succeeded in downloading file: " + id,
 	})
