@@ -123,10 +123,8 @@ func (c dfaController) WithDraw(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
 	priv, err := service.ParseToken(token)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "invalid identity",
-		})
+		err = fmt.Errorf("invalid identity: %v", err)
+		errFunc(err)
 		return
 	}
 	ok, tx, err := c.contract.WithDraw(priv, uint64(amount))
@@ -178,10 +176,8 @@ func (c dfaController) Approve(ctx *gin.Context) {
 
 	ok, tx, err := c.contract.Approve(priv, uint64(amount))
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "failed to approve",
-		})
+		err = fmt.Errorf("faild to execute the transaction: %v", err)
+		errFunc(err)
 		return
 	}
 	msg := "approve status: "

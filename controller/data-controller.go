@@ -26,6 +26,7 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to upload a file",
+			"err": err,
 		})
 	}
 	token := ctx.GetHeader("Authorization")
@@ -135,6 +136,7 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to download a file",
+			"err": err,
 		})
 	}
 	deleFunc := func() {
@@ -183,6 +185,7 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to upload a file",
+			"err": err,
 		})
 	}
 	token := ctx.GetHeader("Authorization")
@@ -236,6 +239,7 @@ func (c *dfaController) WriteFile(ctx *gin.Context) {
 	tx, err := c.contract.WriteFile(priv, id, hashAddr, data)
 	if err != nil {
 		errFunc(err)
+		return
 	}
 	b, _ := c.contract.Login(priv)
 	u := dto.Behavior2View(b)
@@ -255,6 +259,7 @@ func (c *dfaController) ShareFile(ctx *gin.Context) {
 		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to share a file",
+			"err": err,
 		})
 	}
 	token := ctx.GetHeader("Authorization")
@@ -313,6 +318,7 @@ func (c *dfaController) QueryAllFiles(ctx *gin.Context) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to query files",
+			"err": err,
 		})
 	}
 	if err != nil {
