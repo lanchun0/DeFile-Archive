@@ -17,11 +17,11 @@
         input {
             height: 20px;
             margin-left: 20px;
-            width: 180px;
+            width: 355px;
         }
         .loginDiv {
-            width: 350px;
-            height: 300px;
+            width: 550px;
+            height: 250px;
             border: 2px solid black;
             margin: 300px auto;
             background-color: white;
@@ -32,7 +32,7 @@
             text-align: center;
             height: 50px;
         }
-        .loginDiv p{
+        .loginDiv p {
             display: inline-block;
             height: 30px;
             font-size: 16px;
@@ -42,7 +42,7 @@
         }
         .loginDiv div {
             height: 30px;
-            width: 80px;
+            width: 100px;
             margin-left: 20px;
             margin-top: 20px;
             line-height: 30px;
@@ -61,8 +61,8 @@
             margin-top: 40px;
             text-align: right;
             display: inline-block;
-            margin-left: 95px;
-            margin-right: 0;
+            margin-left: 150px;
+            margin-right: 8px;
         }
         .buttonReg {
             width: 70px;
@@ -73,9 +73,22 @@
             text-decoration: underline;
             color: black;
             margin-top: 40px;
-            text-align: left;
+            text-align: center;
             display: inline-block;
             margin-left: 0;
+        }
+        .buttonGue {
+            width: 70px;
+            height: 20px;
+            background-color: white; /* Green */
+            border: 1px solid transparent;
+            font-size: 16px;
+            text-decoration: underline;
+            color: black;
+            margin-top: 40px;
+            text-align: left;
+            display: inline-block;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -84,13 +97,10 @@
 <div class="loginDiv">
     <h2>Welcome to Defile Archive</h2>
     <form action="/login" method="post">
-        <div>User name</div>
-        <input type="text" name="username" id="username">
-        <br>
-        <div>Password</div>
+        <div>Private Key</div>
         <input type="password" name="password" id="password">
         <br>
-        <input type="submit" class="buttonLog" value="Login" onclick="xxx"> | <input type="button" class="buttonReg" value="Register">
+        <input type="submit" class="buttonLog" value="Login" onclick="xxx"> | <input type="button" class="buttonReg" value="Register"> | <input type="button" class="buttonGue" value="Guest">
     </form>
 </div>
 </body>
