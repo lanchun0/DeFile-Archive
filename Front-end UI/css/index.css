@@ -88,6 +88,9 @@ nav a {
 nav a:hover {
   color: #3578f7;
 }
+.user_info a {
+  color: red;
+}
 .user_info .address_wrap .info_label {
   width: 130px;
   float: left;
