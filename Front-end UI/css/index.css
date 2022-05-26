@@ -1,0 +1,436 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+html {
+  background: #f5f5f5;
+  font-family: 'Times New Roman', Times, serif;
+}
+button,
+input {
+  font-family: 'Times New Roman', Times, serif;
+}
+.blue {
+  color: #3578f7;
+}
+div {
+  box-sizing: border-box;
+}
+h2 {
+  font-weight: 400;
+  text-align: center;
+  height: 50px;
+  line-height: 50px;
+  margin-bottom: 30px;
+}
+h3 {
+  font-weight: normal;
+  margin-bottom: 20px;
+}
+a {
+  text-decoration: none;
+  color: #000;
+  font-size: 16px;
+}
+p {
+  margin-bottom: 10px;
+}
+.f600 {
+  font-weight: 600;
+}
+.i300 {
+  width: 300px;
+}
+.fr {
+  float: right;
+}
+.fl {
+  float: left;
+}
+.clear {
+  clear: both;
+}
+input {
+  box-sizing: border-box;
+}
+body {
+  width: 800px;
+  height: 800px;
+  height: auto;
+  position: relative;
+  margin: 30px auto;
+  background: #fff;
+  box-shadow: 0 5px 12px 3px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  box-sizing: border-box;
+}
+.main {
+  width: 1200px;
+  height: auto;
+  position: relative;
+  margin: 0 auto;
+  border: 1px solid red;
+  background: #fff;
+}
+nav {
+  margin-bottom: 20px;
+}
+nav .right_nav {
+  text-align: right;
+}
+nav .right_nav span {
+  margin: 0 10px;
+}
+nav a {
+  transition: 0.2s;
+}
+nav a:hover {
+  color: #3578f7;
+}
+.user_info .address_wrap .info_label {
+  width: 130px;
+  float: left;
+}
+.user_info .user_wrap {
+  margin: 20px 0;
+}
+.user_info .user_wrap .section1 .user_img {
+  width: 130px;
+  text-align: center;
+  float: left;
+}
+.user_info .user_wrap .section1 .user_img img {
+  width: 30%;
+}
+.user_info .user_wrap .section1 .info_label {
+  width: 100px;
+  float: left;
+}
+.user_info .user_wrap .section2 {
+  padding-left: 120px;
+  margin-top: 20px;
+}
+.user_info .user_wrap .section2 .row {
+  margin-bottom: 20px;
+}
+.user_info .user_wrap .section2 .row .col {
+  float: left;
+  border: 1px dashed #000;
+  padding: 20px 10px;
+  height: 70px;
+  margin: 0 10px;
+}
+.user_info .user_wrap .section2 button {
+  background: #fff;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 20px;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  margin-bottom: -1px;
+}
+.user_info .user_wrap .section2 button:hover {
+  background: #000;
+  color: #fff;
+}
+.user_info .user_wrap .section2 input {
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  outline: none;
+  border: 1px solid #000;
+  margin-right: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+.user_info .user_wrap .section2 .value {
+  display: inline-block;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  outline: none;
+  margin-right: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+.user_info .user_wrap .section3 {
+  padding-left: 130px;
+  margin-top: 20px;
+}
+.user_info .user_wrap .section3 button {
+  margin-left: 30px;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  line-height: 20px;
+  text-align: center;
+  border: 1px solid red;
+  background: #fff;
+  transition: 0.2s;
+}
+.user_info .user_wrap .section3 button a {
+  display: block;
+  color: red;
+}
+.user_info .user_wrap .section3 button:hover {
+  background: red;
+}
+.user_info .user_wrap .section3 button:hover a {
+  color: #fff;
+}
+.user_info .user_wrap .section3 .section3_content {
+  padding-left: 20px;
+}
+.user_info .user_wrap .section3 .section3_content .id {
+  display: block;
+  float: left;
+  width: 70%;
+  margin-bottom: 10px;
+}
+.user_info .user_wrap .section3 .section3_content .col_left {
+  float: right;
+  width: 30%;
+}
+.user_info .user_wrap .section3 .section3_content .col_left a {
+  cursor: default;
+}
+.user_info .user_wrap .section3 .section3_content .col {
+  width: 100%;
+  float: left;
+}
+.user_info .user_wrap .section3 .section3_content span {
+  margin: 0 10px;
+}
+.user_info .user_wrap .section3 .section3_content .row {
+  margin-bottom: 10px;
+}
+.user_info .user_wrap .section3 .section3_content a {
+  color: #3578f7;
+}
+.upload_info {
+  padding: 0 30px;
+}
+.upload_info .info {
+  margin-bottom: 20px;
+}
+.upload_info .label {
+  width: 150px;
+  height: 30px;
+  line-height: 30px;
+  float: left;
+}
+.upload_info .content {
+  float: left;
+  width: 500px;
+}
+.upload_info .file_content {
+  width: 300px;
+  height: 150px;
+  border: 1px dashed #000;
+}
+.upload_info .file_content #file {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+.upload_info .file_content label {
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 150px;
+  text-align: center;
+  cursor: pointer;
+}
+.upload_info .check {
+  border-radius: 50%;
+}
+.upload_info .custom-checkbox span {
+  background-color: white;
+  border-radius: 50%;
+  border: 2px solid #3578f7;
+  width: 10px;
+  height: 10px;
+  line-height: 10px;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+}
+.upload_info .custom-checkbox input[type="checkbox"] {
+  display: none;
+}
+.upload_info .custom-checkbox input[type="checkbox"]:checked + span {
+  position: relative;
+}
+.upload_info .custom-checkbox input[type="checkbox"]:checked + span:after {
+  content: "";
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  background: #3578f7;
+  border: #fff solid 2px;
+  height: 6px;
+  width: 6px;
+}
+.upload_info input,
+.upload_info select {
+  width: 150px;
+  height: 30px;
+  line-height: 30px;
+  box-sizing: border-box;
+}
+.upload_info .btn_wrap {
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+}
+.upload_info .btn_wrap a {
+  display: block;
+  width: 150px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #000;
+  margin: 0 auto;
+  transition: 0.2s;
+}
+.upload_info .btn_wrap a:hover {
+  background: #000;
+  color: #fff;
+}
+.index_info .search_wrap {
+  margin: 20px 0;
+  height: 30px;
+}
+.index_info .search_wrap img {
+  height: 30px;
+  float: left;
+  margin-right: 10px;
+}
+.index_info .search_wrap input {
+  height: 30px;
+}
+.index_info .file_wrap {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.index_info .file_wrap .file_info {
+  display: block;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #000;
+  margin-bottom: 20px;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+.index_info .file_wrap .file_info .file_img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+}
+.index_info .file_wrap .file_info:hover {
+  background: #f5f5f5;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+.detail_info {
+  margin: 0 auto;
+}
+.detail_info .label {
+  line-height: 30px;
+}
+.detail_info p {
+  line-height: 30px;
+}
+.detail_info .meta {
+  margin-top: -10px;
+  padding-left: 150px;
+  margin-bottom: 0;
+}
+.detail_info .meta .label {
+  width: 80px;
+}
+.detail_info .address_info input {
+  width: 300px;
+}
+.detail_info .address_info select {
+  width: 300px;
+}
+.detail_info button {
+  background: #fff;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 20px;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  margin-bottom: -1px;
+}
+.detail_info button:hover {
+  background: #000;
+  color: #fff;
+}
+.detail_info .download_btn {
+  margin-left: 226px;
+}
+.detail_info .box {
+  margin: 40px 0;
+  border: 1px dashed #000;
+  padding: 20px;
+}
+.detail_info .box .label {
+  width: 80px;
+}
+.detail_info .box .row {
+  margin-bottom: 20px;
+}
+.login_info {
+  padding: 30px;
+}
+.login_info .login_input {
+  height: 30px;
+  width: 100%;
+  line-height: 30px;
+  margin-bottom: 50px;
+}
+.login_info .login_input p {
+  width: 100px;
+  float: left;
+}
+.login_info .login_input input {
+  width: 370px;
+  height: 30px;
+  line-height: 30px;
+}
+.login_info .button_wrap {
+  display: flex;
+  justify-content: space-between;
+}
+.login_info .button_wrap a {
+  display: block;
+  width: 150px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #000;
+  transition: 0.2s;
+}
+.login_info .button_wrap a:hover {
+  background: #000;
+  color: #fff;
+}
