@@ -122,7 +122,7 @@ nav a:hover {
   border: 1px dashed #000;
   padding: 20px 10px;
   height: 70px;
-  margin: 0 10px;
+  margin: 0 10px 0 115px;
 }
 .user_info .user_wrap .section2 button {
   background: #fff;
