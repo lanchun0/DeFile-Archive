@@ -27,6 +27,7 @@ func main() {
 	server := gin.New()
 	dfaController.Init()
 	server.Use(gin.Recovery(), middlewares.Logger())
+	//server.Use(middlewares.Cors())
 	routers.SetRouter(server, dfaController)
 
 	server.Run(":7051")
