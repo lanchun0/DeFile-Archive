@@ -13,6 +13,7 @@ input {
 }
 .blue {
   color: #3578f7;
+  text-decoration: underline;
 }
 .red {
   color: rgb(235, 106, 86);
