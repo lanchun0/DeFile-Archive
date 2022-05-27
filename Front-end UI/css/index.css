@@ -13,6 +13,9 @@ input {
 }
 .blue {
   color: #3578f7;
+}
+.blueNav {
+  color: #3578f7;
   text-decoration: underline;
 }
 .red {
