@@ -47,11 +47,11 @@ func (contract *smartcontract) DeployContract() (err error) {
 
 func (contract *smartcontract) parseIdentity(priv string) (*bind.TransactOpts, common.Address, error) {
 	if len(priv) <= 2 {
-		return nil, common.Address{}, fmt.Errorf("invalid private key")
+		return nil, common.Address{}, fmt.Errorf("invalid private key: %s", priv)
 	}
 	privateKey, err := crypto.HexToECDSA(priv[2:])
 	if err != nil {
-		return nil, common.Address{}, fmt.Errorf("invalid private key")
+		return nil, common.Address{}, fmt.Errorf("invalid private key:  %s", priv)
 	}
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)

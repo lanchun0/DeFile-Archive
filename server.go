@@ -26,7 +26,7 @@ var (
 func main() {
 	server := gin.New()
 	dfaController.Init()
-	server.Use(gin.Recovery(), middlewares.Logger())
+	server.Use(gin.Recovery(), middlewares.Logger(), middlewares.Cors())
 	//server.Use(middlewares.Cors())
 	routers.SetRouter(server, dfaController)
 

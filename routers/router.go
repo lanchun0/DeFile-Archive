@@ -8,8 +8,8 @@ import (
 )
 
 func SetRouter(server *gin.Engine, controller controller.DFAController) {
-	// server.Static("/css", "./templates/css")
-	// server.LoadHTMLGlob("templates/*.html")
+	server.Static("/css", "./templates/css")
+	server.LoadHTMLGlob("templates/*.html")
 
 	apiRoutes := server.Group("/defile")
 	apiRoutes.POST("/register", controller.Register)
