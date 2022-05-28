@@ -200,6 +200,7 @@ func (c *dfaController) GetAllowance(ctx *gin.Context) {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": "failed to query allowance",
+			"err": err,
 		})
 	}
 	token := ctx.GetHeader("Authorization")
