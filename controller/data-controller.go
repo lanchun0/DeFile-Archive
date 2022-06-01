@@ -379,9 +379,9 @@ func (c *dfaController) GetAddress(ctx *gin.Context) {
 	dataAddr := c.contract.GetDataContractAddress()
 	userAddr := c.contract.GetUserContractAddress()
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":   "smart contract address on Etherueum",
-		"addr1": "file sharing contract address:\n" + dataAddr,
-		"addr2": "user & ForFortoken contract address:\n" + userAddr,
+		"msg":       "smart contract address on Etherueum",
+		"fileaddr":  dataAddr,
+		"tokenaddr": userAddr,
 	})
 
 }
