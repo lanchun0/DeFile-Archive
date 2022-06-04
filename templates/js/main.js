@@ -27,7 +27,8 @@ var app = new Vue({
         uploadMsg: "N.A.",
         fileID: "N.A.",
         allRow: [],
-        extensionIcon: {"txt": "./images/txt.png", "docx": "./images/word.png", "pptx": "./images/ppt.png", "xlsx": "./images/excel.png"},
+        extensionIcon: {"txt": "./images/txt.png", "docx": "./images/word.png", "pptx": "./images/ppt.png",
+            "xlsx": "./images/excel.png", "pdf": "./images/pdf.png"},
         queryID: "",
         detailID: "",
         detailOwner: "",
@@ -313,8 +314,8 @@ var app = new Vue({
                     }else {
                         that.fileID = response.data.data.id
                         that.uploadMsg = response.data.msg
-                        alert(response.data.msg + "\ntx [created]:\n" + "111"
-                            + "\ntx [written]:\n" + "222" + "\nfile permission level is: "
+                        alert(response.data.msg + "\ntx [created]:\n" + response.data.txcreated
+                            + "\ntx [written]:\n" + response.data.txwrited + "\nfile permission level is: "
                         + response.data.data.permissionlevel + "\ntradable: " + String(response.data.data.tradable))
                         that.file = "N.A."
                         that.permissionLevel = "L_0"
@@ -433,8 +434,20 @@ var app = new Vue({
                     alert(err)
                 })
         },
-        downloadFile: function () {
-
+        downloadFile: function (fileid, filename) {
+            that = this
+            axios.get("http://localhost:7051/defile/download", {
+                params: {id: fileid},
+                headers: {Authorization : "Bearer " + that.authorizationToken},
+                responseType: 'blob'
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', filename); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+            })
         },
         shareFile: function (fileid) {
             that = this
