@@ -119,11 +119,11 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	b, _ := c.contract.Login(priv)
 	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":                   "success uploading",
-		"data":                  view,
-		"transaction [created]": tx1,
-		"transaction [writed]":  tx2,
-		"user":                  u,
+		"msg":       "success uploading",
+		"data":      view,
+		"txcreated": tx1,
+		"txwrited":  tx2,
+		"user":      u,
 	})
 
 }
