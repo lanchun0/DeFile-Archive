@@ -2,6 +2,7 @@ package dto
 
 import (
 	"dfa/entity"
+	"dfa/general"
 
 	"fmt"
 	"strings"
@@ -13,8 +14,16 @@ type ViewData struct {
 	Owner           string `json:"owner"`
 	PermissionLevel string `json:"permissionlevel"`
 	Tradable        bool   `json:"tradable"`
-	MeteData        entity.MeteData
+	MeteData        VieMeta
 	PermissionList  []PermissionList
+}
+
+type VieMeta struct {
+	FileName   string `json:"filename"`
+	HashDigest string `json:"hashdigest"`
+	Signer     string `json:"signer"`
+	Size       uint64 `json:"size"`
+	TimeStamp  string `json:"timestamp"`
 }
 
 type PermissionList struct {
@@ -95,9 +104,14 @@ func Data2View(data entity.Data) ViewData {
 		Owner:           data.Owner,
 		PermissionLevel: PL2String[data.PermissionLevel],
 		Tradable:        data.Tradable,
-		MeteData:        data.MeteData,
+		MeteData:        VieMeta{},
 		PermissionList:  []PermissionList{},
 	}
+	v.MeteData.FileName = data.MeteData.FileName
+	v.MeteData.HashDigest = data.MeteData.HashDigest
+	v.MeteData.Signer = data.MeteData.Signer
+	v.MeteData.Size = data.MeteData.Size
+	v.MeteData.TimeStamp = general.Timestamp2Str(data.MeteData.TimeStamp)
 	for _, pl := range data.PermissionList {
 		view_pl := PermissionList{
 			Address:    pl.Address,
