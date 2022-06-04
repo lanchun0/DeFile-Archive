@@ -18,12 +18,12 @@
   <h2>Defile Archive</h2>
 
   <nav>
-    <div class="right_nav">
+    <div class="right_nav" id="nav">
       <a href="userInfo.html" class="blueNav">User</a>
       <span>|</span>
       <a href="userIndex.html">Home</a>
       <span>|</span>
-      <a href="login.html" class="red">Logout</a>
+      <a href="login.html" class="red" @click="logoutSystem">Logout</a>
     </div>
   </nav>
 
@@ -31,18 +31,18 @@
   <h3>Contact Address</h3>
 
   <!-- Main part -->
-  <div class="user_info">
+  <div class="user_info" id="app">
 
 
     <div class="address_wrap">
       <div class="address_info">
         <p class="info_label">Token：</p>
-        <p class="info_content blue">0xxxxx……</p>
+        <p class="info_content blue" v-text="tokenAddr"></p>
         <div class="clear"></div>
       </div>
       <div class="address_info">
         <p class="info_label">File Sharing：</p>
-        <p class="info_content blue">0xxxxx……</p>
+        <p class="info_content blue" v-text="fileAddr"></p>
         <div class="clear"></div>
       </div>
     </div>
@@ -55,57 +55,48 @@
 
         <div class="user_info">
           <p class="info_label">Address:</p>
-          <p class="info_content blue">0xxxxx……</p>
+          <p class="info_content blue" v-text="address"></p>
         </div>
         <div class="user_info">
           <p class="info_label">Balance:</p>
-          <p class="info_content blue">92</p>
+          <p class="info_content blue" v-text="balance"></p>
         </div>
       </div>
 
       <div class="section2">
         <div class="row">
           <div class="col">
-            <button>Withdraw</button>
-            <input type="text">
+            <button @click="withdrawMoney">Withdraw</button>
+            <input type="text" v-model="moneyWithdraw">
           </div>
           <div class="col">
-            <button>Topup</button>
-            <input type="text">
+            <button @click="addMoney">Topup</button>
+            <input type="text" v-model="moneyAdd">
           </div>
           <div class="clear"></div>
         </div>
         <div class="row">
           <div class="col">
-            <button>Allowance</button>
-            <p class="value blue">31</p>
+            <button @click="refreshAllowance">Allowance</button>
+            <p class="value blue" v-text="allowance"></p>
           </div>
           <div class="col">
-            <button>Approve</button>
-            <input type="text">
+            <button @click="approveMoney">Approve</button>
+            <input type="text" v-model="moneyApprove">
           </div>
           <div class="clear"></div>
         </div>
       </div>
 
       <div class="section3">
-        <h3>Asset: <button><a href="upload.html">+</a></button></h3>
+        <h3>Asset: <button><a href="upload.html">+</a></button><button class="button_refresh" @click="refreshAsset"><a href="#">↺</a></button></h3>
 
         <div class="section3_content">
-          <div class="col">
-            <a href="#" class="blue id">1400f44-db65-11ec-866a-a21e1626d0f8</a>
+          <div class="col" v-for="(item, index) in asset">
+            <a href="#" class="blue id" v-text="item.fileid" @click="oneFile(item.fileid)"></a>
 
             <div class="col_left">
-              <a href="#">Owner</a>
-              <span>|</span>
-              <a href="#">Admin</a>
-            </div>
-          </div>
-          <div class="col">
-            <a href="#" class="blue id">1400f44-db65-11ec-866a-a21e1626d0f8</a>
-            <div class="col_left">
-              <a href="#">Reader</a>
-
+              <a href="#" v-text="item.permission"></a>
             </div>
           </div>
 
@@ -116,6 +107,11 @@
 
   </div>
   <!-- Main part -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="./js/main.js"></script>
 
 
 

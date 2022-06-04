@@ -22,21 +22,32 @@
 
 
   <!-- Main part -->
-  <div class="login_info">
+  <div class="login_info" id="app">
 
     <div class="login_input">
       <p>Private Key</p>
-      <input type="text">
+      <input type="text" v-model="privateKey">
     </div>
 
     <div class="button_wrap">
-      <a href="#">Login</a>
-      <a href="#">Register</a>
-      <a href="userInfo.html">Guest</a>
+      <a href="#" @click="loginSystem">Login</a>
+      <a href="#" @click="registerNew">Register</a>
+      <a href="userInfo.html" @click="logoutSystem">Guest</a>
+    </div>
+
+    <div v-if="registered">
+      <br>
+      <p>Your private key is:</p>
+      <p v-text="newKey"></p>
     </div>
 
   </div>
   <!-- Main part -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="./js/main.js"></script>
 
 
 

@@ -13,11 +13,11 @@
   <h2>File Detail</h2>
 
   <!-- Main part -->
-  <div class="upload_info detail_info">
+  <div class="upload_info detail_info" id="app">
     <div class="info">
       <div class="label">ID:</div>
       <div class="content">
-        <p class="blue">007-095</p>
+        <p class="blue" v-text="detailID"></p>
       </div>
       <div class="clear"></div>
     </div>
@@ -25,7 +25,7 @@
     <div class="info">
       <div class="label">Owner:</div>
       <div class="content">
-        <p class="blue">0x0000</p>
+        <p class="blue" v-text="detailOwner"></p>
       </div>
       <div class="clear"></div>
     </div>
@@ -33,7 +33,7 @@
     <div class="info">
       <div class="label">Permission Level:</div>
       <div class="content">
-        <p class="blue">L.3</p>
+        <p class="blue" v-text="detailPl"></p>
       </div>
       <div class="clear"></div>
     </div>
@@ -41,7 +41,7 @@
     <div class="info">
       <div class="label">Tradable:</div>
       <div class="content">
-        <p class="blue">True</p>
+        <p class="blue" v-text="detailTradable"></p>
       </div>
       <div class="clear"></div>
     </div>
@@ -56,32 +56,28 @@
 
     <div class="info meta">
       <div class="label">Filename:</div>
-      <p class="blue">
-        test.txt
+      <p class="blue" v-text="detailName">
       </p>
       <div class="clear"></div>
     </div>
 
     <div class="info meta">
       <div class="label">Hashdigest:</div>
-      <p class="blue">
-        abcd
+      <p class="blue" v-text="detailHd">
       </p>
       <div class="clear"></div>
     </div>
 
     <div class="info meta">
       <div class="label">Signer:</div>
-      <p class="blue">
-        0x000
+      <p class="blue" v-text="detailSigner">
       </p>
       <div class="clear"></div>
     </div>
 
     <div class="info meta">
       <div class="label">Size:</div>
-      <p class="blue">
-        0
+      <p class="blue" v-text="detailSize">
       </p>
       <div class="clear"></div>
     </div>
@@ -89,8 +85,7 @@
 
     <div class="info meta" style="margin-bottom: 20px;">
       <div class="label">Timestamp:</div>
-      <p class="blue">
-        2022-05-24
+      <p class="blue" v-text="detailTs">
       </p>
       <div class="clear"></div>
     </div>
@@ -98,40 +93,39 @@
 
     <div class="info">
       <div class="label">
-        <button>Write</button>
+        <button @click="writeFile(detailID)">Write</button>
       </div>
       <div class="content file_content">
-        <label for="file">Drag your file here</label>
-        <input type="file" id="file">
+        <label for="file" v-if="file == 'N.A.'">Drag your file here</label>
+        <label for="file" v-if="file != 'N.A.'" v-text="fileName"></label>
+        <input type="file" id="file" @change="onChange">
       </div>
       <div class="clear"></div>
     </div>
 
     <div class="button_wrap">
-      <button class="buy_btn">Buy</button>
-      <button class="download_btn">Download</button>
+      <button class="buy_btn" @click="buyFile(detailID)">Buy</button>
+      <button class="download_btn" @click="downloadFile(detailID)">Download</button>
     </div>
 
 
     <div class="box">
       <div class="row fr address_info">
         <div class="label">Address</div>
-        <input type="text" value="0x4092B536F86913a152f88783369257eb66F82c20">
+        <input type="text" v-model="shareAddr">
       </div>
       <div class="clear"></div>
 
       <div class="row fl">
-        <button>Share</button>
+        <button @click="shareFile(detailID)">Share</button>
       </div>
       <div class="clear"></div>
 
 
       <div class="row fr address_info">
         <div class="label">Permission</div>
-        <select name="" id="">
-          <option value="">Reader</option>
-          <option value="">Writer</option>
-          <option value="">Admin</option>
+        <select name="" id="" v-model="sharePermission">
+          <option v-for="(permission, index) in allPermission" :key="index" v-text="permission"></option>
         </select>
       </div>
       <div class="clear"></div>
@@ -143,12 +137,13 @@
     </div>
 
 
-
-
-
-
   </div>
   <!-- Main part -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="./js/main.js"></script>
 
 
 

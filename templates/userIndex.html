@@ -13,12 +13,12 @@
   <h2>Defile Archive</h2>
 
   <nav>
-    <div class="right_nav">
+    <div class="right_nav" id="nav">
       <a href="userInfo.html">User</a>
       <span>|</span>
       <a href="userIndex.html" class="blueNav">Home</a>
       <span>|</span>
-      <a href="login.html" class="red">Logout</a>
+      <a href="login.html" class="red" @click="logoutSystem">Logout</a>
     </div>
   </nav>
 
@@ -26,46 +26,38 @@
   <h3>Contact Address</h3>
 
   <!-- Main part -->
-  <div class="user_info index_info">
+  <div class="user_info index_info" id="app">
 
 
     <div class="address_wrap">
       <div class="address_info">
         <p class="info_label">Token：</p>
-        <p class="info_content blue">0xxxxx……</p>
+        <p class="info_content blue" v-text="tokenAddr"></p>
         <div class="clear"></div>
       </div>
       <div class="address_info">
         <p class="info_label">File Sharing：</p>
-        <p class="info_content blue">0xxxxx……</p>
+        <p class="info_content blue" v-text="fileAddr"></p>
         <div class="clear"></div>
       </div>
     </div>
 
 
     <div class="search_wrap">
-      <a href="#">
+      <a href="#" @click="oneFile(queryID)">
         <img src="images/search.png" alt="">
       </a>
-      <input type="text" class="i300" value="51400f44-db65-11ec-866a-a21e1626d0f8">
+      <input type="text" class="i300" v-model="queryID">
     </div>
 
-    <div class="file_wrap">
-      <a href="detail.html" class="file_info">
-        <img src="images/file.png" class="file_img" alt="">
-        <p>test.txt</p>
-      </a>
-      <a href="detail.html" class="file_info">
-        <img src="images/file.png" class="file_img" alt="">
-        <p>test.txt</p>
-      </a>
-      <a href="detail.html" class="file_info">
-        <img src="images/file.png" class="file_img" alt="">
-        <p>test.txt</p>
-      </a>
-      <a href="detail.html" class="file_info">
-        <img src="images/file.png" class="file_img" alt="">
-        <p>test.txt</p>
+    <div>
+      <button @click="allFile">Refresh</button>
+    </div>
+
+    <div class="file_wrap" v-for="row in allRow">
+      <a href="#" class="file_info" v-for="col in row" @click="oneFile(col.id)">
+        <img :src="extensionIcon[col.extension]" class="file_img" alt="">
+        <p v-text="col.MeteData.filename"></p>
       </a>
 
     </div>
@@ -74,6 +66,11 @@
 
   </div>
   <!-- Main part -->
+
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="./js/main.js"></script>
 
 
 

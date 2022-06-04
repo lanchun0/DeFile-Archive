@@ -241,6 +241,7 @@ nav a:hover {
   width: 300px;
   height: 150px;
   border: 1px dashed #000;
+  background: #f5f5f5;
 }
 .upload_info .file_content #file {
   display: none;
