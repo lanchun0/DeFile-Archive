@@ -119,16 +119,16 @@ func (c *dfaController) UploadFile(ctx *gin.Context) {
 	b, _ := c.contract.Login(priv)
 	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg":                   "success uploading",
-		"data":                  view,
-		"transaction [created]": tx1,
-		"transaction [writed]":  tx2,
-		"user":                  u,
+		"msg":       "success uploading",
+		"data":      view,
+		"txcreated": tx1,
+		"txwrited":  tx2,
+		"user":      u,
 	})
 
 }
 
-// POST (token)
+// GET (token)
 // param: id string
 func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	//c.contractService.DownloadFile()
@@ -151,7 +151,9 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		errFunc(err)
 		return
 	}
-	id := ctx.DefaultPostForm("id", "nil")
+	// id := ctx.DefaultPostForm("id", "nil")
+	id := ctx.DefaultQuery("id", "nil")
+	fmt.Println("get the id:", id)
 	ipfsHash, data, err := c.contract.ReadFile(priv, id)
 	if err != nil {
 		errFunc(err)
@@ -162,6 +164,7 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 		errFunc(err)
 		return
 	}
+	defer deleFunc()
 	err = os.Rename("./"+name, "./tmp/"+data.MeteData.FileName)
 	if err != nil {
 		errFunc(err)
@@ -169,12 +172,6 @@ func (c *dfaController) DownloadFile(ctx *gin.Context) {
 	}
 	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%s", data.MeteData.FileName))
 	ctx.File("./tmp/" + data.MeteData.FileName)
-	// ctx.Writer.Header().Set("Content-Length", "-1")
-	// ctx.Header("Content-Length", "-1")
-	ctx.JSON(http.StatusAccepted, gin.H{
-		"msg": "succeeded in downloading file: " + id,
-	})
-	defer deleFunc()
 }
 
 // POST (token)
