@@ -290,7 +290,8 @@ var app = new Vue({
             this.fileName = event.target.files[0].name
         },
         submitUp: function () {
-            if(this.permissionLevel == "L_0") {
+            if(this.permissionLevel == "L_0" && this.tradable) {
+                alert("L_0 file is not tradable")
                 this.tradable = false
             }
             that = this
