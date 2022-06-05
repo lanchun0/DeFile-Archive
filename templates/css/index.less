@@ -4,8 +4,16 @@
   list-style: none;
 }
 
+[v-cloak]{
+  display: none;
+}
+
 html {
   background: #f5f5f5;
+  background: url(../images/bg.jpg);
+  background-size: cover;
+  background-attachment: fixed;
+  overflow-x: hidden;
   font-family: 'Times New Roman', Times, serif;
 }
 
@@ -14,9 +22,15 @@ button,input{
 }
 
 .blue {
-  color: rgb(53, 120, 247);
+  color: #3578f7;
 }
-
+.blueNav {
+  color: #3578f7;
+  text-decoration: underline;
+}
+.red {
+  color: rgb(235, 106, 86);
+}
 div {
   box-sizing: border-box;
 }
@@ -74,7 +88,7 @@ body {
   height: auto;
   position: relative;
   margin: 30px auto;
-  background: #fff;
+  background: rgba(255,255,255, .8);
   box-shadow: 0 5px 12px 3px rgba(0, 0, 0, .2);
   padding: 30px;
   box-sizing: border-box;
@@ -127,7 +141,7 @@ nav {
         float: left;
 
         img {
-          width: 30%;
+          width: 50%;
         }
       }
 
@@ -164,6 +178,7 @@ nav {
         box-sizing: border-box;
         border: 1px solid #000;
         margin-bottom: -1px;
+        float: left;
       }
 
       button:hover {
@@ -197,32 +212,50 @@ nav {
     }
 
     .section3 {
-      padding-left: 130px;
       margin-top: 20px;
-
+      display: flex;
+      .section3_img{
+        width: 130px;
+        text-align: center;
+        img{
+          width: 80px;
+        }
+      }
       button {
-        margin-left: 30px;
+        margin-left: 35px;
         border-radius: 50%;
+        margin-top: 5px;
         height: 20px;
         width: 20px;
         line-height: 20px;
         text-align: center;
-        border: 1px solid red;
+        border: 1px solid rgb(250, 226, 106);
         background: #fff;
         transition: .2s;
 
         a {
           display: block;
-          color: red;
+          color: rgb(250, 226, 106);
         }
       }
 
       button:hover {
-        background: red;
+        background: rgb(250, 226, 106);
 
         a {
           color: #fff;
         }
+      }
+      .line{
+        width: 150px;
+        height: 15px;
+        display: inline-block;
+        margin-left: 20px;
+        border: 1px solid #000;
+        background: rgb(204, 51, 59);
+        border-radius: 20px;
+        position: relative;
+        top: 5px;
       }
 
       .section3_content {
@@ -396,7 +429,7 @@ nav {
 
   .file_wrap{
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     flex-wrap: wrap;
     .file_info{
       display: block;
@@ -408,6 +441,7 @@ nav {
       padding: 20px;
       box-sizing: border-box;
       transition: .2s;
+      margin-right: 35px;
       .file_img{
         width: 80px;
         height: 80px;
@@ -511,6 +545,7 @@ nav {
   .button_wrap{
     display: flex;
     justify-content: space-between;
+    margin-bottom: 40px;
     a{
       display: block;
       width: 150px;
@@ -527,3 +562,59 @@ nav {
   }
 }
 // Login end
+
+
+.ref_btn{
+  background: #fff;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 20px;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  display: block;
+  margin-bottom: 20px;
+}
+.ref_btn:hover{
+  background: #000;
+  color: #fff;
+}
+
+.dialog{
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, .5);
+  position: fixed;
+  left: 0;
+  top: 0;
+  .dialog_content{
+    width: 600px;
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    height: auto;
+    margin: 30px auto;
+    background: #fff;
+    box-shadow: 0 5px 12px 3px rgba(0, 0, 0, .2);
+    padding: 30px;
+    box-sizing: border-box;
+    a{
+      display: block;
+      width: 150px;
+      height: 30px;
+      margin: 30px auto;
+      margin-bottom: 0;
+      line-height: 30px;
+      text-align: center;
+      border: 1px solid #000;
+      transition: .2s;
+    }
+    a:hover{
+      background: #000;
+      color: #fff;
+    }
+  }
+}

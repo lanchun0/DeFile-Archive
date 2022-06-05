@@ -7,6 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detail</title>
   <link rel="stylesheet" href="css/index.css">
+  <style>
+    .button_wrap {
+      margin-bottom: 20px;
+      padding-left: 150px;
+      justify-content: start;
+    }
+  </style>
 </head>
 
 <body>
@@ -91,6 +98,11 @@
     </div>
 
 
+    <div class="button_wrap">
+      <button class="buy_btn" @click="buyFile(detailID)">Buy</button>
+      <button class="download_btn" @click="downloadFile(detailID, detailName)">Download</button>
+    </div>
+
     <div class="info">
       <div class="label">
         <button @click="writeFile(detailID)">Write</button>
@@ -103,10 +115,6 @@
       <div class="clear"></div>
     </div>
 
-    <div class="button_wrap">
-      <button class="buy_btn" @click="buyFile(detailID)">Buy</button>
-      <button class="download_btn" @click="downloadFile(detailID, detailName)">Download</button>
-    </div>
 
 
     <div class="box">
@@ -133,7 +141,7 @@
     </div>
 
     <div class="btn_wrap">
-    <a href="userIndex.html" class="submit">Back</a>
+      <a href="userIndex.html" class="submit">Back</a>
     </div>
 
 

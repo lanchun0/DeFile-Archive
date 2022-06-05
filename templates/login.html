@@ -22,7 +22,7 @@
 
 
   <!-- Main part -->
-  <div class="login_info" id="app">
+  <div class="login_info" id="app" v-cloak>
 
     <div class="login_input">
       <p>Private Key</p>
@@ -35,10 +35,15 @@
       <a href="userInfo.html" @click="logoutSystem">Guest</a>
     </div>
 
-    <div v-if="registered">
-      <br>
-      <p>Your private key is:</p>
-      <p v-text="newKey"></p>
+    <div v-if="registered" class="dialog">
+      <div class="dialog_content">
+        <p>Your private key is:</p>
+        <p v-text="newKey"></p>
+
+        <div class="button">
+          <a href="#" @click="backLogin">Back</a>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -47,7 +52,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <script src="./js/main.js"></script>
+  <script src="js/vue.js"></script>
+  <script src="js/main.js"></script>
 
 
 

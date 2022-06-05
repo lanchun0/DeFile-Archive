@@ -51,15 +51,17 @@
     </div>
 
     <div>
-      <button @click="allFile">Refresh</button>
+      <button @click="allFile" class="ref_btn">Refresh</button>
     </div>
+
+    <h3>All Files</h3>
+
 
     <div class="file_wrap" v-for="row in allRow">
       <a href="#" class="file_info" v-for="col in row" @click="oneFile(col.id)">
         <img :src="extensionIcon[col.extension]" class="file_img" alt="">
         <p v-text="col.MeteData.filename"></p>
       </a>
-
     </div>
 
   </div>

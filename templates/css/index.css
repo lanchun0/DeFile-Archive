@@ -3,8 +3,15 @@
   padding: 0;
   list-style: none;
 }
+[v-cloak] {
+  display: none;
+}
 html {
   background: #f5f5f5;
+  background: url(../images/bg.jpg);
+  background-size: cover;
+  background-attachment: fixed;
+  overflow-x: hidden;
   font-family: 'Times New Roman', Times, serif;
 }
 button,
@@ -19,7 +26,7 @@ input {
   text-decoration: underline;
 }
 .red {
-  color: rgb(235, 106, 86);
+  color: #eb6a56;
 }
 div {
   box-sizing: border-box;
@@ -67,7 +74,7 @@ body {
   height: auto;
   position: relative;
   margin: 30px auto;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 5px 12px 3px rgba(0, 0, 0, 0.2);
   padding: 30px;
   box-sizing: border-box;
@@ -108,7 +115,7 @@ nav a:hover {
   float: left;
 }
 .user_info .user_wrap .section1 .user_img img {
-  width: 30%;
+  width: 50%;
 }
 .user_info .user_wrap .section1 .info_label {
   width: 100px;
@@ -126,7 +133,7 @@ nav a:hover {
   border: 1px dashed #000;
   padding: 20px 10px;
   height: 70px;
-  margin: 0 10px 0 115px;
+  margin: 0 10px;
 }
 .user_info .user_wrap .section2 button {
   background: #fff;
@@ -140,6 +147,7 @@ nav a:hover {
   box-sizing: border-box;
   border: 1px solid #000;
   margin-bottom: -1px;
+  float: left;
 }
 .user_info .user_wrap .section2 button:hover {
   background: #000;
@@ -168,29 +176,48 @@ nav a:hover {
   text-align: center;
 }
 .user_info .user_wrap .section3 {
-  padding-left: 130px;
   margin-top: 20px;
+  display: flex;
+}
+.user_info .user_wrap .section3 .section3_img {
+  width: 130px;
+  text-align: center;
+}
+.user_info .user_wrap .section3 .section3_img img {
+  width: 80px;
 }
 .user_info .user_wrap .section3 button {
-  margin-left: 30px;
+  margin-left: 35px;
   border-radius: 50%;
+  margin-top: 5px;
   height: 20px;
   width: 20px;
   line-height: 20px;
   text-align: center;
-  border: 1px solid red;
+  border: 1px solid #fae26a;
   background: #fff;
   transition: 0.2s;
 }
 .user_info .user_wrap .section3 button a {
   display: block;
-  color: red;
+  color: #fae26a;
 }
 .user_info .user_wrap .section3 button:hover {
-  background: red;
+  background: #fae26a;
 }
 .user_info .user_wrap .section3 button:hover a {
   color: #fff;
+}
+.user_info .user_wrap .section3 .line {
+  width: 150px;
+  height: 15px;
+  display: inline-block;
+  margin-left: 20px;
+  border: 1px solid #000;
+  background: #cc333b;
+  border-radius: 20px;
+  position: relative;
+  top: 5px;
 }
 .user_info .user_wrap .section3 .section3_content {
   padding-left: 20px;
@@ -241,7 +268,6 @@ nav a:hover {
   width: 300px;
   height: 150px;
   border: 1px dashed #000;
-  background: #f5f5f5;
 }
 .upload_info .file_content #file {
   display: none;
@@ -330,7 +356,7 @@ nav a:hover {
 }
 .index_info .file_wrap {
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   flex-wrap: wrap;
 }
 .index_info .file_wrap .file_info {
@@ -343,6 +369,7 @@ nav a:hover {
   padding: 20px;
   box-sizing: border-box;
   transition: 0.2s;
+  margin-right: 35px;
 }
 .index_info .file_wrap .file_info .file_img {
   width: 80px;
@@ -394,7 +421,7 @@ nav a:hover {
   color: #fff;
 }
 .detail_info .download_btn {
-  margin-left: 226px;
+  margin-left: 76px;
 }
 .detail_info .box {
   margin: 40px 0;
@@ -428,6 +455,7 @@ nav a:hover {
 .login_info .button_wrap {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 40px;
 }
 .login_info .button_wrap a {
   display: block;
@@ -441,4 +469,63 @@ nav a:hover {
 .login_info .button_wrap a:hover {
   background: #000;
   color: #fff;
+}
+.ref_btn {
+  background: #fff;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 20px;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  display: block;
+  margin-bottom: 20px;
+}
+.ref_btn:hover {
+  background: #000;
+  color: #fff;
+}
+.dialog {
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+.dialog .dialog_content {
+  width: 600px;
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  height: auto;
+  margin: 30px auto;
+  background: #fff;
+  box-shadow: 0 5px 12px 3px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  box-sizing: border-box;
+}
+.dialog .dialog_content a {
+  display: block;
+  width: 150px;
+  height: 30px;
+  margin: 30px auto;
+  margin-bottom: 0;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #000;
+  transition: 0.2s;
+}
+.dialog .dialog_content a:hover {
+  background: #000;
+  color: #fff;
+}
+
+
+
+.section3_info{
+  width: 80%;
 }

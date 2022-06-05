@@ -14,7 +14,7 @@
 
 
   <!-- Main part -->
-  <div class="upload_info" id="app">
+  <div class="upload_info" id="app" v-cloak>
     <div class="info">
       <div class="label">File</div>
       <div class="content file_content">
@@ -59,11 +59,23 @@
       <a href="#" class="submit" @click="submitUp">Submit</a>
     </div>
 
-    <div v-if="uploadMsg == 'success uploading'">
+    <!-- <div v-if="uploadMsg == 'success uploading'">
       <br>
       <p>File ID is:</p>
       <p v-text="fileID"></p>
+    </div> -->
+
+    <div v-if="uploadMsg === 'success uploading'" class="dialog">
+      <div class="dialog_content">
+        <p>File ID is:</p>
+        <p v-text="fileID"></p>
+
+        <div class="button">
+          <a href="#" @click="backUpload">Back</a>
+        </div>
+      </div>
     </div>
+
 
 
 
@@ -72,6 +84,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="js/vue.js"></script>
   <script src="./js/main.js"></script>
 
 
