@@ -14,6 +14,7 @@ type ViewData struct {
 	Owner           string `json:"owner"`
 	PermissionLevel string `json:"permissionlevel"`
 	Tradable        bool   `json:"tradable"`
+	Price           uint64 `json:"price"`
 	MeteData        VieMeta
 	PermissionList  []PermissionList
 }
@@ -104,6 +105,7 @@ func Data2View(data entity.Data) ViewData {
 		Owner:           data.Owner,
 		PermissionLevel: PL2String[data.PermissionLevel],
 		Tradable:        data.Tradable,
+		Price:           data.Price,
 		MeteData:        VieMeta{},
 		PermissionList:  []PermissionList{},
 	}
