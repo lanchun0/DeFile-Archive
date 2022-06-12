@@ -220,3 +220,68 @@ func (c *dfaController) GetAllowance(ctx *gin.Context) {
 	})
 
 }
+
+// GET (token)
+// no param
+func (c *dfaController) GetApproved(ctx *gin.Context) {
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to query approved",
+			"err": err,
+		})
+	}
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	amount, err := c.contract.GetApproved(priv)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":    "allowed to spend with ForForToken",
+		"amount": amount,
+	})
+
+}
+
+// POST (token)
+// param amount uint
+func (c *dfaController) TransferFromContract(ctx *gin.Context) {
+	errFunc := func(err error) {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to transfer token from File Sharing Contract",
+			"err": err,
+		})
+	}
+	token := ctx.GetHeader("Authorization")
+	priv, err := service.ParseToken(token)
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	amountStr := ctx.DefaultPostForm("amount", "0")
+	amount, err := strconv.Atoi(amountStr)
+	if err != nil || amount <= 0 {
+		if amount <= 0 {
+			err = fmt.Errorf("invalid amount: %s", amountStr)
+		}
+		errFunc(err)
+		return
+	}
+	tx, err := c.contract.TransferFrom(priv, uint64(amount))
+	if err != nil {
+		errFunc(err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg": "success transfer from File Sharing Contract",
+		"tx":  tx,
+	})
+
+}

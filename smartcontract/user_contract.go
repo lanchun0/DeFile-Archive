@@ -96,6 +96,33 @@ func (contract *smartcontract) GetAllowance(priv string) (uint64, error) {
 	return amount.Uint64(), nil
 }
 
+func (contract *smartcontract) GetApproved(priv string) (uint64, error) {
+	_, addr, err := contract.parseIdentity(priv)
+	if err != nil {
+		return 0, fmt.Errorf("error: cannot query approved: invalid identity: %s", priv)
+	}
+	amount, err := contract.userContract.Allowance(&bind.CallOpts{
+		From: common.HexToAddress(contract.wallet[1]),
+	}, addr, contract.dataAddress)
+	if err != nil {
+		return 0, fmt.Errorf("error: cannot query approved:  %v", err)
+	}
+	return amount.Uint64(), nil
+}
+
+func (contract *smartcontract) TransferFrom(priv string, amount uint64) (string, error) {
+	auth, addr, err := contract.parseIdentity(priv)
+	if err != nil {
+		return "", fmt.Errorf("error: cannot transfer from Filesharing Contract: invalid identity: %s", priv)
+	}
+	total := new(big.Int).SetUint64(amount)
+	tx, err := contract.userContract.TransferFrom(auth, contract.dataAddress, addr, total)
+	if err != nil {
+		return "", fmt.Errorf("error: cannot transfer from Filesharing Contract:  %v", err)
+	}
+	return tx.To().Hex(), nil
+}
+
 func token2User(user *token.ForForTokenUser) entity.User {
 	user.Addr.Hex()
 	b := entity.User{

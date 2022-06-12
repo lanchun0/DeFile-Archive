@@ -42,7 +42,9 @@ var wallet = [2]string{
 type SmartContract interface {
 	DeployContract() (err error)
 
+	TransferFrom(priv string, amount uint64) (tx string, err error)
 	GetAllowance(priv string) (amount uint64, err error)
+	GetApproved(priv string) (amount uint64, err error)
 	Register() (entity.User, string, error)
 	Login(priv string) (entity.User, error)
 	Approve(priv string, price uint64) (success bool, tx string, err error)

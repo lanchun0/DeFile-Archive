@@ -27,6 +27,9 @@ func SetRouter(server *gin.Engine, controller controller.DFAController) {
 		apiRoutes.POST("/withdraw", controller.WithDraw)
 		apiRoutes.POST("/approve", controller.Approve)
 		apiRoutes.GET("/allowance", controller.GetAllowance)
+		apiRoutes.GET("/approved", controller.GetApproved)
+
+		apiRoutes.POST("/transfer", controller.TransferFromContract)
 	}
 
 	viewRoutes := server.Group("/view")

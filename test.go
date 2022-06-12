@@ -64,13 +64,14 @@ func main() {
 	fmt.Println("priv2 topup 50")
 	ok, tx, err := contract.Topup(priv2, 50)
 	fmt.Println(ok, tx, err)
-	// fmt.Println("")
-	// ds, err := contract.QueryAllFiles()
-	// fmt.Println(ds, err)
 
 	fmt.Println("priv2 approve 30")
 	ok, tx, err = contract.Approve(priv2, 30)
 	fmt.Println(ok, tx, err)
+
+	fmt.Println("priv2 approved")
+	amount, err := contract.GetApproved(priv2)
+	fmt.Println(amount, err)
 
 	fmt.Println("priv2 purchase a file")
 	tx, ok, err = contract.PurchaseFile(priv2, "file_0")
@@ -81,7 +82,19 @@ func main() {
 	fmt.Println(user)
 
 	fmt.Println("priv1 query allowance")
-	amount, err := contract.GetAllowance(priv1)
+	amount, err = contract.GetAllowance(priv1)
+	fmt.Println(amount)
+
+	fmt.Println("priv1 transfer from contract")
+	tx, err = contract.TransferFrom(priv1, 22)
+	fmt.Println(tx, err)
+
+	fmt.Println("priv1 login")
+	user, err = contract.Login(priv1)
+	fmt.Println(user, err)
+
+	fmt.Println("priv1 query allowance")
+	amount, err = contract.GetAllowance(priv1)
 	fmt.Println(amount)
 
 }

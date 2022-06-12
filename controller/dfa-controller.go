@@ -69,6 +69,14 @@ type DFAController interface {
 	// no param
 	GetAllowance(ctx *gin.Context)
 
+	// GET (token)
+	// no param
+	GetApproved(ctx *gin.Context)
+
+	// POST (token)
+	// no param
+	TransferFromContract(ctx *gin.Context)
+
 	// GET (no token)
 	// no param
 	GetAddress(ctx *gin.Context)
