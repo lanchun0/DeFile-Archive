@@ -18,6 +18,8 @@
             withdrawMsg: "N.A.",
             moneyApprove: "",
             approveMsg: "N.A.",
+            approved: "N.A.",
+            moneyTransfer: "",
             file: "N.A.",
             fileName: "",
             permissionLevel: 'L_0',
@@ -39,6 +41,7 @@
             detailOwner: "",
             detailPl: "",
             detailTradable: "",
+            detailPrice: "",
             detailName: "",
             detailHd: "",
             detailSigner: "",
@@ -62,9 +65,6 @@
             if (localStorage.authorizationToken) {
                 this.authorizationToken = localStorage.authorizationToken
             }
-            if (localStorage.allowance) {
-                this.allowance = localStorage.allowance
-            }
             if (localStorage.address) {
                 this.address = localStorage.address
             }
@@ -79,6 +79,9 @@
             }
             if (localStorage.detailTradable) {
                 this.detailTradable = localStorage.detailTradable
+            }
+            if (localStorage.detailPrice) {
+                this.detailPrice = localStorage.detailPrice
             }
             if (localStorage.detailName) {
                 this.detailName = localStorage.detailName
@@ -109,9 +112,6 @@
             authorizationToken(newToken) {
                 localStorage.authorizationToken = newToken
             },
-            allowance(newAllow) {
-                localStorage.allowance = newAllow
-            },
             address(newAddr) {
                 localStorage.address = newAddr
             },
@@ -126,6 +126,9 @@
             },
             detailTradable(newTradable) {
                 localStorage.detailTradable = newTradable
+            },
+            detailPrice(newPrice) {
+                localStorage.detailPrice = newPrice
             },
             detailName(newName) {
                 localStorage.detailName = newName
@@ -257,7 +260,7 @@
                             alert(response.data.msg + "\nYour withdraw amount is: " + response.data.amount +
                                 "\nYour tx is:\n" + response.data.transaction)
                             // cheating here
-                            that.balance = String(Number(response.data.user.balance) - Number(that.moneyWithdraw))
+                            that.balance = response.data.user.balance
                             that.moneyWithdraw = ""
                         }
                     }, function (err) {
@@ -284,6 +287,46 @@
                             alert(response.data.msg + "\nYour approve amount is: " + response.data.price + "\nYour tx is:\n" +
                                 response.data.transaction)
                             that.moneyApprove = ""
+                        }
+                    }, function (err) {
+                        alert(err)
+                    })
+            },
+            refreshApproved: function () {
+                that = this
+                axios({
+                    method: "get",
+                    url: "http://localhost:7051/defile/approved",
+                    headers: {
+                        "Authorization": "Bearer " + that.authorizationToken
+                    }
+                })
+                    .then(function (response) {
+                        that.approved = response.data.amount
+                    }, function (err) {
+                        alert(err)
+                    })
+            },
+            transferMoney: function () {
+                that = this
+                var bodyFormData = new FormData();
+                bodyFormData.append('amount', this.moneyTransfer)
+                axios({
+                    method: "post",
+                    url: "http://localhost:7051/defile/transfer",
+                    data: bodyFormData,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        "Authorization": "Bearer " + that.authorizationToken
+                    },
+                })
+                    .then(function (response) {
+                        if (response.data.msg == "failed to transfer token from File Sharing Contract") {
+                            alert("Failed to transfer token from File Sharing Contract\n" + response.data.err)
+                        } else {
+                            alert(response.data.msg + "\nYour tx is:\n" + response.data.transaction)
+                            that.balance = response.data.user.balance
+                            that.moneyTransfer = ""
                         }
                     }, function (err) {
                         alert(err)
@@ -374,6 +417,7 @@
                             that.detailOwner = response.data.data.owner
                             that.detailPl = response.data.data.permissionlevel
                             that.detailTradable = String(response.data.data.tradable)
+                            that.detailPrice = response.data.data.price
                             that.detailName = response.data.data.MeteData.filename
                             that.detailHd = response.data.data.MeteData.hashdigest
                             that.detailSigner = response.data.data.MeteData.signer

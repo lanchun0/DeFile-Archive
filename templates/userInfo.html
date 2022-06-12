@@ -78,12 +78,23 @@
         </div>
         <div class="row">
           <div class="col">
-            <button @click="refreshAllowance">Allowance</button>
-            <p class="value blue" v-text="allowance"></p>
+            <button @click="refreshApproved">Approved</button>
+            <p class="value blue" v-text="approved"></p>
           </div>
           <div class="col">
             <button @click="approveMoney">Approve</button>
             <input type="text" v-model="moneyApprove">
+          </div>
+          <div class="clear"></div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button @click="refreshAllowance">Allowance</button>
+            <p class="value blue" v-text="allowance"></p>
+          </div>
+          <div class="col">
+            <button @click="transferMoney">Transfer</button>
+            <input type="text" v-model="moneyTransfer">
           </div>
           <div class="clear"></div>
         </div>
