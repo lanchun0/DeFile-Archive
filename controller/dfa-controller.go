@@ -74,7 +74,7 @@ type DFAController interface {
 	GetApproved(ctx *gin.Context)
 
 	// POST (token)
-	// no param
+	// param amount uint
 	TransferFromContract(ctx *gin.Context)
 
 	// GET (no token)
