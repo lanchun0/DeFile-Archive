@@ -95,7 +95,9 @@ func (contract *smartcontract) PurchaseFile(priv, id string) (string, bool, erro
 }
 
 func (contract *smartcontract) QueryFile(id string) (entity.Data, error) {
-	f, err := contract.dataContract.QueryFile(nil, id)
+	f, err := contract.dataContract.QueryFile(&bind.CallOpts{
+		From: common.HexToAddress(contract.wallet[0]),
+	}, id)
 	if err != nil {
 		return entity.Data{}, fmt.Errorf("failed to query: %v", err)
 	}
@@ -104,7 +106,9 @@ func (contract *smartcontract) QueryFile(id string) (entity.Data, error) {
 }
 
 func (contract *smartcontract) QueryAllFiles() ([]entity.Data, error) {
-	total, err := contract.dataContract.GetFileCount(nil)
+	total, err := contract.dataContract.GetFileCount(&bind.CallOpts{
+		From: common.HexToAddress(contract.wallet[0]),
+	})
 	if err != nil {
 		return []entity.Data{}, fmt.Errorf("failed to query: %v", err)
 	}
@@ -113,7 +117,9 @@ func (contract *smartcontract) QueryAllFiles() ([]entity.Data, error) {
 	res, i := []entity.Data{}, 0
 	for i < amount {
 		index := big.NewInt(int64(i))
-		f, err := contract.dataContract.QueryFileByIndex(nil, index)
+		f, err := contract.dataContract.QueryFileByIndex(&bind.CallOpts{
+			From: common.HexToAddress(contract.wallet[1]),
+		}, index)
 		if err != nil {
 			return res, err
 		}

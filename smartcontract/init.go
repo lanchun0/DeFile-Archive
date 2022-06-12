@@ -19,6 +19,7 @@ type smartcontract struct {
 	client *ethclient.Client
 	// auth        *bind.TransactOpts
 	servers []string
+	wallet  []string
 }
 
 // type identity struct {
@@ -31,6 +32,11 @@ type smartcontract struct {
 var servers = [2]string{
 	"0xf1b3f8e0d52caec13491368449ab8d90f3d222a3e485aa7f02591bbceb5efba5",
 	"0x91821f9af458d612362136648fc8552a47d8289c0f25a8a1bf0860510332cef9",
+}
+
+var wallet = [2]string{
+	"0xE280029a7867BA5C9154434886c241775ea87e53",
+	"0x68dB32D26d9529B2a142927c6f1af248fc6Ba7e9",
 }
 
 type SmartContract interface {
@@ -61,5 +67,6 @@ type SmartContract interface {
 func NewConract() SmartContract {
 	return &smartcontract{
 		servers: servers[:],
+		wallet:  wallet[:],
 	}
 }

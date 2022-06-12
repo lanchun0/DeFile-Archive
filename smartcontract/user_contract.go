@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 func (contract *smartcontract) Register() (entity.User, string, error) {
@@ -86,7 +87,9 @@ func (contract *smartcontract) GetAllowance(priv string) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("error: cannot query allowance: invalid identity: %s", priv)
 	}
-	amount, err := contract.userContract.Allowance(nil, addr, contract.dataAddress)
+	amount, err := contract.userContract.Allowance(&bind.CallOpts{
+		From: common.HexToAddress(contract.wallet[1]),
+	}, contract.dataAddress, addr)
 	if err != nil {
 		return 0, fmt.Errorf("error: cannot query allowance:  %v", err)
 	}

@@ -125,7 +125,7 @@ contract ForForToken is ERC20Interface{
         uint256 balance = balances[msg.sender];
         balances[msg.sender] -= tokens;
         if (!payable(msg.sender).send(total)) {
-            balances[msg.sender] = balance;
+            // balances[msg.sender] = balance;
             return false;
         }
         supply += tokens;
