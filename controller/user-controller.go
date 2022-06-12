@@ -279,9 +279,12 @@ func (c *dfaController) TransferFromContract(ctx *gin.Context) {
 		errFunc(err)
 		return
 	}
+	b, _ := c.contract.Login(priv)
+	u := dto.Behavior2View(b)
 	ctx.JSON(http.StatusOK, gin.H{
-		"msg": "success transfer from File Sharing Contract",
-		"tx":  tx,
+		"msg":         "success transfer from File Sharing Contract",
+		"transaction": tx,
+		"user":        u,
 	})
 
 }
