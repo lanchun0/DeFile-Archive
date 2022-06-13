@@ -121,12 +121,10 @@ func (contract *smartcontract) QueryAllFiles() ([]entity.Data, error) {
 			From: common.HexToAddress(contract.wallet[1]),
 		}, index)
 		if err != nil {
-			return res, err
+			continue
 		}
-		if f.PermissionLevel != uint8(entity.L_0) {
-			data := offFile2Data(&f)
-			res = append(res, data)
-		}
+		data := offFile2Data(&f)
+		res = append(res, data)
 		i++
 	}
 	return res, nil
